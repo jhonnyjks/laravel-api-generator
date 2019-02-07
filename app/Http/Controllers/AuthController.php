@@ -4,8 +4,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\User;
+use App\Models\Person;
 class AuthController extends Controller
 {
+    //Campo usado com a senha na autenticação
+    protected $username = 'login';
+
     /**
      * Create user
      *
@@ -18,12 +22,18 @@ class AuthController extends Controller
     public function signup(Request $request)
     {
         $request->validate([
-            'name' => 'required|string',
-            'email' => 'required|string|email|unique:users',
-            'password' => 'required|string'
+            'dip' => 'required|numeric|between:100000,99999999999999999999999999999999|exists:persons|unique:accesses,login',
+            'email' => 'required|email|unique:accesses',
+            'password' => 'required|string|between:6,15'
         ]);
+
+        $person = Person::where(['dip' => $request->dip])->first();
+
         $user = new User([
-            'name' => $request->name,
+            'person_id' => $person->id,
+            'type_access_id' => 1,
+            'status_access_id' => 1,
+            'login' => $request->dip,
             'email' => $request->email,
             'password' => bcrypt($request->password)
         ]);
@@ -32,7 +42,7 @@ class AuthController extends Controller
             'message' => 'Successfully created user!'
         ], 201);
     }
-  
+
     /**
      * Login user and create token
      *
@@ -46,17 +56,18 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string',
+            'login' => 'required_without:email|numeric|between:100000,99999999999999999999999999999999|exists:accesses',
+            'email' => 'required_without:login|email|exists:accesses',
+            'password' => 'required|string|between:6,15',
             'remember_me' => 'boolean'
         ]);
-        $credentials = request(['email', 'password']);
+        $credentials = request([!empty($request->login) ? 'login' : 'email', 'password']);
         if(!Auth::attempt($credentials))
             return response()->json([
-                'message' => 'Unauthorized'
+                'message' => 'Acesso não autorizado.'
             ], 401);
         $user = $request->user();
-        $tokenResult = $user->createToken('Personal Access Token');
+        $tokenResult = $user->createToken('Token pessoal '.$user->id);
         $token = $tokenResult->token;
 
         if ($request->remember_me)
@@ -72,7 +83,7 @@ class AuthController extends Controller
             )->toDateTimeString()
         ]);
     }
-  
+
     /**
      * Logout user (Revoke the token)
      *
@@ -85,7 +96,7 @@ class AuthController extends Controller
             'message' => 'Successfully logged out'
         ]);
     }
-  
+
     /**
      * Get the authenticated User
      *

@@ -27,3 +27,6 @@ Route::group([
     });
 });
 
+Route::resource('persons', 'PersonAPIController');
+
+Route::resource('people', 'PersonAPIController');

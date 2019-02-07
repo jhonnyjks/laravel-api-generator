@@ -10,13 +10,16 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 class User extends Authenticatable
 {   
     use HasApiTokens, Notifiable;
+
+    protected $table = 'accesses';
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+       'login', 'email', 'password', 'type_access_id', 'status_access_id', 'person_id', 
     ];
 
     /**
