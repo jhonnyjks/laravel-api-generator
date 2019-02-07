@@ -12,7 +12,6 @@ class User extends Authenticatable
     use HasApiTokens, Notifiable;
 
     protected $table = 'accesses';
-
     /**
      * The attributes that are mass assignable.
      *
@@ -30,4 +29,26 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    public function getProfileId() {
+        // session(['profile['..']'])
+    } 
+
+    public function setProfile($profileId, $accessToken)
+    {
+
+        $sessionPath = 'session['.$profileId.']['.$this->id.']';
+        
+        session([
+            $sessionPath.'accessToken' => $accessToken,
+            $sessionPath.'permissions' => 
+        ]);
+    }
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     **/
+    public function accessProfiles()
+    {
+        return $this->hasMany(\App\Models\AccessProfile::class);
+    }
 }

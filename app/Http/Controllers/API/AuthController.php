@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\User;
 use App\Models\Person;
+use App\Models\Profile;
+use App\Models\AccessProfile;
 class AuthController extends Controller
 {
     //Campo usado com a senha na autenticação
@@ -40,7 +42,7 @@ class AuthController extends Controller
         ]);
         $user->save();
         return response()->json([
-            'message' => 'Successfully created user!'
+            'message' => 'Acesso criado com sucesso!'
         ], 201);
     }
 
@@ -75,13 +77,24 @@ class AuthController extends Controller
             $token->expires_at = Carbon::now()->addDays(1);
         else $token->expires_at = Carbon::now()->addMinutes(30);
 
+        $profileIds = [];
+        $accessProfiles = AccessProfile::where(['access_id' => $user->id])->get(['profile_id']);
+
+        foreach($accessProfiles as $profile) {
+            $profileIds[] = $profile->profile_id;
+        }
+   
         $token->save();
+
+$user->setProfile(1);
+
         return response()->json([
             'access_token' => $tokenResult->accessToken,
             'token_type' => 'Bearer',
             'expires_at' => Carbon::parse(
                 $tokenResult->token->expires_at
-            )->toDateTimeString()
+            )->toDateTimeString(),
+            'profiles' => Profile::where(['id' => $profileIds])->get(['id', 'noun', 'description'])
         ]);
     }
 
@@ -94,7 +107,7 @@ class AuthController extends Controller
     {
         $request->user()->token()->revoke();
         return response()->json([
-            'message' => 'Successfully logged out'
+            'message' => 'Sessão encerrada com sucesso!'
         ]);
     }
 
