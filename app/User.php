@@ -6,20 +6,21 @@ use Laravel\Passport\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use App\Models\Permission;
+use App\Models\Profile;
+use App\Models\UserProfileAction;
 
 class User extends Authenticatable
 {   
     use HasApiTokens, Notifiable;
-
-    protected $table = 'accesses';
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-       'login', 'email', 'password', 'type_access_id', 'status_access_id', 'person_id', 
-    ];
+       'login', 'email', 'password', 'type_user_id', 'status_user_id', 'person_id', 
+   ];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -30,25 +31,86 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
-    public function getProfileId() {
-        // session(['profile['..']'])
+    public function getProfile() {
+        return Profile::find($this->token()->profile_id);
     } 
 
-    public function setProfile($profileId, $accessToken)
+    public function setProfile($profileId)
     {
+        $token = $this->token();
+        $scopes = Array();
+        $permissions = Permission::where(['profile_id' => $profileId])->get();
+        $userProfile = $this->userProfiles()->where(['profile_id' => $profileId])->first();
 
-        $sessionPath = 'session['.$profileId.']['.$this->id.']';
-        
-        session([
-            $sessionPath.'accessToken' => $accessToken,
-            $sessionPath.'permissions' => 
+        if(empty($userProfile)) return [
+            'success' => false,
+            'message' => 'Acesso não autorizado.'
+        ];;
+
+        $userProfileActions = $userProfile->userProfileActions->pluck('action_id', 'action_id')->toArray();
+
+        foreach ($permissions as $permission) {
+            $actions = $permission->actions()->whereIn('id', $userProfileActions)->pluck('code', 'noun')->toArray();
+            if(!empty($actions)) {
+                $path = $permission->cpath;
+                $parentPermission = $permission;
+
+                while (!empty($parentPermission->permission_id)) {
+                    $parentPermission = $permission->permission;
+                    $path = $parentPermission->cpath.'/'.$path;                        
+                }
+
+                $scopes[$path] = [
+                    'actions' => $actions
+                ];
+            }
+        }
+
+        $token->update([
+            'profile_id' => $profileId,
+            'scopes' => $scopes
         ]);
+
+        return [
+            'success' => true,
+            'message' => 'Perfil definido com sucesso!'
+        ];
+
     }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      **/
-    public function accessProfiles()
+    public function userProfiles()
     {
-        return $this->hasMany(\App\Models\AccessProfile::class);
+        return $this->hasMany(\App\Models\UserProfile::class);
     }
 }
+
+/* Estrutura da sessão
+session [
+    'token1' : {
+        access_id : 99,
+        profile_id : 99,
+        expires_at : 0000-00-00 00:00:00,
+        scopes [
+            'permission_cpath1' : {
+                actions : [
+                    'action_noun1' : 7,
+                    'action_noun2' : 5
+                ]
+            },
+            'permission_cpath1/cpath3' : {
+                actions : [
+                    'action_noun1' : 7,
+                    'action_noun2' : 5
+                ]
+            },
+            'permission_cpath2' : {
+                'action_noun1' : 7,
+                'action_noun2' : 5
+            }
+        ]
+    }
+]
+*/

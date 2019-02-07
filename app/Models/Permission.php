@@ -8,25 +8,25 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 /**
  * Class Permission
  * @package App\Models
- * @version February 7, 2019, 5:11 am UTC
+ * @version February 7, 2019, 7:06 pm UTC
  *
  * @property \App\Models\Profile profile
  * @property \Illuminate\Database\Eloquent\Collection Action
- * @property \Illuminate\Database\Eloquent\Collection accessProfiles
- * @property \Illuminate\Database\Eloquent\Collection activityTaxes
- * @property \Illuminate\Database\Eloquent\Collection beneficiaries
  * @property \Illuminate\Database\Eloquent\Collection buildCorrections
- * @property \Illuminate\Database\Eloquent\Collection owners
  * @property \Illuminate\Database\Eloquent\Collection personActivities
- * @property \Illuminate\Database\Eloquent\Collection profileCities
  * @property \Illuminate\Database\Eloquent\Collection personalDetails
+ * @property \Illuminate\Database\Eloquent\Collection owners
+ * @property \Illuminate\Database\Eloquent\Collection profileCities
+ * @property \Illuminate\Database\Eloquent\Collection streets
+ * @property \Illuminate\Database\Eloquent\Collection streetBlocks
  * @property \Illuminate\Database\Eloquent\Collection tributeCovenants
  * @property \Illuminate\Database\Eloquent\Collection serviceActivities
- * @property \Illuminate\Database\Eloquent\Collection accessProfileActions
- * @property \Illuminate\Database\Eloquent\Collection activityAddresses
- * @property \Illuminate\Database\Eloquent\Collection streetBlocks
+ * @property \Illuminate\Database\Eloquent\Collection userProfileActions
  * @property \Illuminate\Database\Eloquent\Collection persons
- * @property \Illuminate\Database\Eloquent\Collection streets
+ * @property \Illuminate\Database\Eloquent\Collection activityAddresses
+ * @property \Illuminate\Database\Eloquent\Collection activityTaxes
+ * @property \Illuminate\Database\Eloquent\Collection beneficiaries
+ * @property \Illuminate\Database\Eloquent\Collection userProfiles
  * @property bigInteger profile_id
  * @property bigInteger permission_id
  * @property smallInteger priority
@@ -85,4 +85,13 @@ class Permission extends Model
     {
         return $this->hasMany(\App\Models\Action::class);
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     **/
+    public function permission()
+    {
+        return $this->belongsTo(\App\Models\Permission::class);
+    }
+
 }

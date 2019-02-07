@@ -95,7 +95,7 @@ class Person extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      **/
-    public function typePerson()
+    public function personType()
     {
         return $this->belongsTo(\App\Models\TypePerson::class);
     }
@@ -183,8 +183,8 @@ class Person extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      **/
-    public function accesses()
+    public function users()
     {
-        return $this->hasMany(\App\Models\Access::class);
+        return $this->hasMany(\App\Models\User::class);
     }
 }

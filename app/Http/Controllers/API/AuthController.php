@@ -7,7 +7,7 @@ use Carbon\Carbon;
 use App\User;
 use App\Models\Person;
 use App\Models\Profile;
-use App\Models\AccessProfile;
+use App\Models\UserProfile;
 class AuthController extends Controller
 {
     //Campo usado com a senha na autenticação
@@ -25,8 +25,8 @@ class AuthController extends Controller
     public function signup(Request $request)
     {
         $request->validate([
-            'dip' => 'required|numeric|between:100000,99999999999999999999999999999999|exists:persons|unique:accesses,login',
-            'email' => 'required|email|unique:accesses',
+            'dip' => 'required|numeric|between:100000,99999999999999999999999999999999|exists:persons|unique:users,login',
+            'email' => 'required|email|unique:users',
             'password' => 'required|string|between:6,15'
         ]);
 
@@ -34,8 +34,8 @@ class AuthController extends Controller
 
         $user = new User([
             'person_id' => $person->id,
-            'type_access_id' => 1,
-            'status_access_id' => 1,
+            'type_user_id' => 1,
+            'status_user_id' => 1,
             'login' => $request->dip,
             'email' => $request->email,
             'password' => bcrypt($request->password)
@@ -52,15 +52,15 @@ class AuthController extends Controller
      * @param  [string] email
      * @param  [string] password
      * @param  [boolean] remember_me
-     * @return [string] access_token
+     * @return [string] user_token
      * @return [string] token_type
      * @return [string] expires_at
      */
     public function login(Request $request)
     {
         $request->validate([
-            'login' => 'required_without:email|numeric|between:100000,99999999999999999999999999999999|exists:accesses',
-            'email' => 'required_without:login|email|exists:accesses',
+            'login' => 'required_without:email|numeric|between:100000,99999999999999999999999999999999|exists:users',
+            'email' => 'required_without:login|email|exists:users',
             'password' => 'required|string|between:6,15',
             'remember_me' => 'boolean'
         ]);
@@ -78,18 +78,16 @@ class AuthController extends Controller
         else $token->expires_at = Carbon::now()->addMinutes(30);
 
         $profileIds = [];
-        $accessProfiles = AccessProfile::where(['access_id' => $user->id])->get(['profile_id']);
+        $userProfiles = UserProfile::where(['user_id' => $user->id])->get(['profile_id']);
 
-        foreach($accessProfiles as $profile) {
+        foreach($userProfiles as $profile) {
             $profileIds[] = $profile->profile_id;
         }
    
         $token->save();
 
-$user->setProfile(1);
-
         return response()->json([
-            'access_token' => $tokenResult->accessToken,
+            'user_token' => $tokenResult->accessToken,
             'token_type' => 'Bearer',
             'expires_at' => Carbon::parse(
                 $tokenResult->token->expires_at
@@ -119,5 +117,15 @@ $user->setProfile(1);
     public function user(Request $request)
     {
         return response()->json($request->user());
+    }
+
+    /**
+     * Definir o perfil e permissões do token em sessão
+     *
+     * @return [json] user object
+     */
+    public function defineProfile($profileId)
+    {
+        return response()->json(auth()->user()->setProfile($profileId));
     }
 }

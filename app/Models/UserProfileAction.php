@@ -6,36 +6,36 @@ use Eloquent as Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Class AccessProfileAction
+ * Class UserProfileAction
  * @package App\Models
- * @version February 7, 2019, 5:13 am UTC
+ * @version February 7, 2019, 8:46 pm UTC
  *
- * @property \App\Models\AccessProfile accessProfile
+ * @property \App\Models\UserProfile userProfile
  * @property \App\Models\Action action
- * @property \Illuminate\Database\Eloquent\Collection accessProfiles
- * @property \Illuminate\Database\Eloquent\Collection activityTaxes
- * @property \Illuminate\Database\Eloquent\Collection beneficiaries
  * @property \Illuminate\Database\Eloquent\Collection buildCorrections
- * @property \Illuminate\Database\Eloquent\Collection owners
  * @property \Illuminate\Database\Eloquent\Collection personActivities
- * @property \Illuminate\Database\Eloquent\Collection profileCities
  * @property \Illuminate\Database\Eloquent\Collection personalDetails
+ * @property \Illuminate\Database\Eloquent\Collection owners
+ * @property \Illuminate\Database\Eloquent\Collection profileCities
+ * @property \Illuminate\Database\Eloquent\Collection streets
+ * @property \Illuminate\Database\Eloquent\Collection streetBlocks
  * @property \Illuminate\Database\Eloquent\Collection tributeCovenants
  * @property \Illuminate\Database\Eloquent\Collection serviceActivities
- * @property \Illuminate\Database\Eloquent\Collection activityAddresses
- * @property \Illuminate\Database\Eloquent\Collection streetBlocks
  * @property \Illuminate\Database\Eloquent\Collection persons
+ * @property \Illuminate\Database\Eloquent\Collection activityAddresses
+ * @property \Illuminate\Database\Eloquent\Collection activityTaxes
+ * @property \Illuminate\Database\Eloquent\Collection beneficiaries
  * @property \Illuminate\Database\Eloquent\Collection permissions
- * @property \Illuminate\Database\Eloquent\Collection streets
+ * @property \Illuminate\Database\Eloquent\Collection userProfiles
  * @property bigInteger action_id
- * @property bigInteger access_profile_id
+ * @property bigInteger user_profile_id
  * @property string|\Carbon\Carbon update_at
  */
-class AccessProfileAction extends Model
+class UserProfileAction extends Model
 {
     use SoftDeletes;
 
-    public $table = 'access_profile_actions';
+    public $table = 'user_profile_actions';
     
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
@@ -46,7 +46,7 @@ class AccessProfileAction extends Model
 
     public $fillable = [
         'action_id',
-        'access_profile_id',
+        'user_profile_id',
         'update_at'
     ];
 
@@ -71,9 +71,9 @@ class AccessProfileAction extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      **/
-    public function accessProfile()
+    public function userProfile()
     {
-        return $this->belongsTo(\App\Models\AccessProfile::class);
+        return $this->belongsTo(\App\Models\UserProfile::class);
     }
 
     /**

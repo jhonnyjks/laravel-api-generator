@@ -7,6 +7,8 @@ use Illuminate\Auth\AuthenticationException;
 use App\Models\Permission;
 class Authenticate extends Middleware
 {
+    //Rotas que não necessitam de sessão
+    private $except = ['define_profile/{id}'];
 
     /**
      * Get the path the user should be redirected to when they are not authenticated.
@@ -58,14 +60,21 @@ class Authenticate extends Middleware
 
     private function hasPermission($request, $guard) {
 
-        $user = $this->auth->guard($guard)->user();
+        $token = $this->auth->guard($guard)->user()->token();
+        $scopes = $token->scopes;
+        $routeUri = str_replace('api/auth/', '', $request->route()->uri());
 
-        // $permissions = 
+        if(!empty($scopes[$routeUri])) {
 
-        return;
+
+        dd( $routeUri);
+
+        } elseif(in_array($routeUri, $this->except)) {
+            return;
+        }
 
         throw new AuthenticationException(
-            'Sem permissão para essa ação.', $guards, $this->redirectTo($request)
+            'Sem permissão para essa ação.', [], $this->redirectTo($request)
         );
     }
 }

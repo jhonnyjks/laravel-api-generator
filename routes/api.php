@@ -27,8 +27,7 @@ Route::group([
 	], function() {
 		Route::get('logout', 'AuthController@logout');
 		Route::get('user', 'AuthController@user');
-
-		Route::resource('persons', 'PersonAPIController');
+		Route::get('define_profile/{id}', 'AuthController@defineProfile');
 	});
 });
 
