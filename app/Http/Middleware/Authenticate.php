@@ -12,7 +12,7 @@ class Authenticate extends Middleware
     private $except = ['auth/define_profile/{id}'];
 
     // Mapeando os métodos às permissões (Action->code)
-    public $methodToPermission = [
+    private $methodToPermission = [
         'GET' => [1, 3, 5, 7, 9, 11, 13, 15],
         'POST' => [2, 3, 6, 7, 10, 11, 14, 15],
         'PUT' => [4, 5, 6, 7, 12, 13, 14, 14],
@@ -20,7 +20,7 @@ class Authenticate extends Middleware
     ];
 
     // Atributos da model que foram permitidos nessa requisição
-    public $allowedAttributes = Array();
+    public static $allowedAttributes = Array();
 
     /**
      * Handle an incoming request.
@@ -95,24 +95,28 @@ class Authenticate extends Middleware
 
         if(!empty($scopes[$routeUri])) {
 
-
-
             //Verifica em todos os atributos do usuário e seleciona os atributos que se
             //encaixam no método requisitado
             foreach ($scopes[$routeUri]['actions'] as $attr => $permission) {
                 if(in_array($permission, $this->methodToPermission[$request->method()])) {
-                    $this->allowedAttributes[] = $attr;
+                    static::$allowedAttributes[] = $attr;
                 }
             }
 
-            if(!empty($this->allowedAttributes)) {
+            if(!empty(static::$allowedAttributes)) {
                 switch ($request->method()) {
+                    case 'GET':
+                    //ID é permanente no GET
+                    array_unshift(static::$allowedAttributes, 'id');
+                    return;
+                    break;
+                    
                     case 'POST':
-                    dd($this->allowedAttributes);
+                    dd(static::$allowedAttributes);
                     break;
 
                     case 'PUT':
-                    dd($this->allowedAttributes);
+                    dd(static::$allowedAttributes);
                     break;
 
                     default:

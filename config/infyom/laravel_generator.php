@@ -86,7 +86,7 @@ return [
     |
     */
 
-    'model_extend_class' => 'Eloquent',
+    'model_extend_class' => 'App\Models\BaseModel',
 
     /*
     |--------------------------------------------------------------------------
@@ -140,7 +140,7 @@ return [
 
     'add_on' => [
 
-        'swagger'       => false,
+        'swagger'       => true,
 
         'tests'         => true,
 
