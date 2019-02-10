@@ -9,7 +9,8 @@ use App\Models\Permission;
 class Authenticate extends Middleware
 {
     //Rotas que não necessitam de sessão
-    public static $except = ['auth/define_profile/{id}'];
+    private static $except = ['auth/define_profile'];
+    private static $isRouteExcept = false;
 
     // Mapeando os métodos às permissões (Action->code)
     private $methodToPermission = [
@@ -91,9 +92,10 @@ class Authenticate extends Middleware
 
         $token = $this->auth->guard($guard)->user()->token();
         $scopes = $token->scopes;
-        $routeUri = str_replace('api/', '', $request->route()->uri());
+        $routeUri = preg_replace('[\/\{(\w+)\}]', '', str_replace('api/', '', $request->route()->uri()));
 
         if(in_array($routeUri, static::$except)) {
+            static::$isRouteExcept = true;
             return;
         }elseif(empty($scopes[$routeUri])) {
             throw new AuthenticationException(
@@ -136,6 +138,10 @@ class Authenticate extends Middleware
                 $request->method(), [], $this->redirectTo($request)
             );
         }
+    }
+
+    public static function isRouteExcept() {
+        return static::$isRouteExcept;
     }
 }
 /* Definição atual das permissões dos atributos (Action->conde).
