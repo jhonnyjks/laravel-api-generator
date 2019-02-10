@@ -72,7 +72,10 @@ class Person extends Model
      */
     protected $casts = [
         'real_name' => 'string',
-        'acronym' => 'string'
+        'acronym' => 'string',
+        'type_person_id' => 'integer',
+        'status_person_id' => 'integer',
+        'dip' => 'integer'
     ];
 
     /**
@@ -81,7 +84,11 @@ class Person extends Model
      * @var array
      */
     public static $rules = [
-        
+        'real_name' => 'required|string',
+        'acronym' => 'string',
+        'type_person_id' => 'required|numeric|exists:person_types,id',
+        'status_person_id' => 'required|numeric|exists:person_statuses,id',
+        'dip' => 'required|numeric'
     ];
 
     /**

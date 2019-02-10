@@ -9,7 +9,7 @@ use App\Models\Permission;
 class Authenticate extends Middleware
 {
     //Rotas que não necessitam de sessão
-    private $except = ['auth/define_profile/{id}'];
+    public static $except = ['auth/define_profile/{id}'];
 
     // Mapeando os métodos às permissões (Action->code)
     private $methodToPermission = [
@@ -93,54 +93,49 @@ class Authenticate extends Middleware
         $scopes = $token->scopes;
         $routeUri = str_replace('api/', '', $request->route()->uri());
 
-        if(!empty($scopes[$routeUri])) {
-
-            //Verifica em todos os atributos do usuário e seleciona os atributos que se
-            //encaixam no método requisitado
-            foreach ($scopes[$routeUri]['actions'] as $attr => $permission) {
-                if(in_array($permission, $this->methodToPermission[$request->method()])) {
-                    static::$allowedAttributes[] = $attr;
-                }
-            }
-
-            if(!empty(static::$allowedAttributes)) {
-                switch ($request->method()) {
-                    case 'GET':
-                    //ID é permanente no GET
-                    array_unshift(static::$allowedAttributes, 'id');
-                    return;
-                    break;
-                    
-                    case 'POST':
-                    dd(static::$allowedAttributes);
-                    break;
-
-                    case 'PUT':
-                    dd(static::$allowedAttributes);
-                    break;
-
-                    default:
-                    return;
-                    break;
-                }
-            } else {      
-                throw new AuthenticationException(
-                    'Se o caminho existe, a sessão não tem permissão de acesso a nenhum atributo no método '. 
-                    $request->method(), [], $this->redirectTo($request)
-                );
-            }
-
-        } elseif(in_array($routeUri, $this->except)) {
+        if(in_array($routeUri, static::$except)) {
             return;
+        }elseif(empty($scopes[$routeUri])) {
+            throw new AuthenticationException(
+                'Se o caminho existe, a sessão não tem permissão de acesso.', [], $this->redirectTo($request)
+            );
         }
 
-        throw new AuthenticationException(
-            'Se o caminho existe, a sessão não tem permissão de acesso.', [], $this->redirectTo($request)
-        );
-    }
+        //Verifica em todos os atributos do usuário e seleciona os atributos que se
+        //encaixam no método requisitado
+        foreach ($scopes[$routeUri]['actions'] as $attr => $permission) {
+            if(in_array($permission, $this->methodToPermission[$request->method()])) {
+                static::$allowedAttributes[] = $attr;
+            }
+        }
 
-    private function testPermissionAfter($request, $guard) {
+        if(!empty(static::$allowedAttributes)) {
+            switch ($request->method()) {
+                case 'GET':
+                    //ID é permanente no GET
+                array_unshift(static::$allowedAttributes, 'id');
+                break;
 
+                case 'POST':
+                case 'PUT':
+                    // Se os atributos de interseção forem mais que os da requisição, significa que
+                    // a requisição tem atributos não permitidos
+                    // dd(array_values(array_diff(array_keys($request->all()), static::$allowedAttributes)));
+                if(!empty(array_diff(array_keys($request->all()), static::$allowedAttributes))) {
+                    throw new AuthenticationException(
+                        'A sessão não tem permissão de acesso ao atributo ['.
+                        array_values(array_diff(array_keys($request->all()), static::$allowedAttributes))[0].
+                        '] no método ['.$request->method().']', [], $this->redirectTo($request)
+                    );
+                }
+                break;
+            }
+        } else {
+            throw new AuthenticationException(
+                'Se o caminho existe, a sessão não tem permissão de acesso a nenhum atributo no método '. 
+                $request->method(), [], $this->redirectTo($request)
+            );
+        }
     }
 }
 /* Definição atual das permissões dos atributos (Action->conde).

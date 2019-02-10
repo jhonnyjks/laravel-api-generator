@@ -22,12 +22,15 @@ class QueryBuilder extends Builder
      */
     public function get($columns = ['*'])
     {
-        if($columns[0] == '*') {
-            $columns = Authenticate::$allowedAttributes;
-        } else {
-            $columns = array_intersect($columns, Authenticate::$allowedAttributes);
+        // Aplicando as exceções de rodas que não devem ser tratadas
+        if(!in_array(str_replace('api/', '', request()->route()->uri()), Authenticate::$except)) {
+            
+            if($columns[0] == '*') {
+                $columns = Authenticate::$allowedAttributes;
+            } else {
+                $columns = array_intersect($columns, Authenticate::$allowedAttributes);
+            }
         }
-
         return parent::get($columns);
     }
 
