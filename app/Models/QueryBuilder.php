@@ -23,7 +23,7 @@ class QueryBuilder extends Builder
     public function get($columns = ['*'])
     {
         // Aplicando as exceções de rodas que não devem ser tratadas
-        if(!Authenticate::isRouteExcept()) {
+        if(!Authenticate::isRouteExcept() && request()->method() != 'DELETE') {
             
             if($columns[0] == '*') {
                 $columns = Authenticate::$allowedAttributes;

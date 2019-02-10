@@ -24,6 +24,10 @@ class UpdatePersonAPIRequest extends APIRequest
      */
     public function rules()
     {
-        return Person::$rules;
+        $rules = Person::$rules;
+
+        $rules['real_name'] = str_replace('required|', '', $rules['real_name']);
+
+        return $rules;
     }
 }

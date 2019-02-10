@@ -88,7 +88,7 @@ class Person extends Model
         'acronym' => 'string',
         'type_person_id' => 'required|numeric|exists:person_types,id',
         'status_person_id' => 'required|numeric|exists:person_statuses,id',
-        'dip' => 'required|numeric'
+        'dip' => 'required|numeric|unique:persons'
     ];
 
     /**
