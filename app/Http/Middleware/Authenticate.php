@@ -8,9 +8,13 @@ use Illuminate\Auth\AuthenticationException;
 use App\Models\Permission;
 class Authenticate extends Middleware
 {
-    //Rotas que não necessitam de sessão
+    //Endpoints que não necessitam de perfil definido
     private static $except = ['auth/define_profile'];
     private static $isRouteExcept = false;
+    //Endpoints que não necessitam de autenticação (públicos)
+    private static $publicRoutes = ['auth/login'];
+    //URI formatada para a validação via $scopes
+    private static $routeUri = null;
 
     // Mapeando os métodos às permissões (Action->code)
     private $methodToPermission = [
@@ -35,7 +39,14 @@ class Authenticate extends Middleware
      */
     public function handle($request, Closure $next, ...$guards)
     {
-        $this->authenticate($request, $guards);
+        //Obtendo URI formatada para a validação via $scopes
+        static::$routeUri = preg_replace('[\/\{(\w+)\}]', '', str_replace('api/', '', $request->route()->uri()));
+
+        if(!in_array(static::$routeUri, static::$publicRoutes)) {
+            $this->authenticate($request, $guards);
+        } else {
+            static::$isRouteExcept = true;
+        }
 
         return $next($request);
     }
@@ -48,7 +59,7 @@ class Authenticate extends Middleware
      */
     protected function redirectTo($request)
     {
-        //Esse projeto é somente back-end, portanto penas respostas em JSON
+        //Esse projeto é somente back-end, portanto apenas respostas em JSON
         //TODO: Tratar resposta para acessos sem o header "Accept: application/json"
 
         // if (!$request->expectsJson()) {
@@ -77,7 +88,7 @@ class Authenticate extends Middleware
         foreach ($guards as $guard) {
             if ($this->auth->guard($guard)->check()) {
 
-                $this->testPermissionBefore($request, $guard);
+                $this->testPermission($request, $guard);
 
                 return $this->auth->shouldUse($guard);
             }
@@ -88,16 +99,18 @@ class Authenticate extends Middleware
         );
     }
 
-    private function testPermissionBefore($request, $guard) {
+    private function testPermission($request, $guard) {
 
         $token = $this->auth->guard($guard)->user()->token();
         $scopes = $token->scopes;
-        $routeUri = preg_replace('[\/\{(\w+)\}]', '', str_replace('api/', '', $request->route()->uri()));
 
-        if(in_array($routeUri, static::$except)) {
+        //Obtendo URI formatada para a validação via $scopes
+        // static::$routeUri = preg_replace('[\/\{(\w+)\}]', '', str_replace('api/', '', $request->route()->uri()));
+
+        if(in_array(static::$routeUri, static::$except)) {
             static::$isRouteExcept = true;
             return;
-        }elseif(empty($scopes[$routeUri])) {
+        }elseif(empty($scopes[static::$routeUri])) {
             throw new AuthenticationException(
                 'Se o caminho existe, a sessão não tem permissão de acesso.', [], $this->redirectTo($request)
             );
@@ -105,7 +118,7 @@ class Authenticate extends Middleware
 
         //Verifica em todos os atributos do usuário e seleciona os atributos que se
         //encaixam no método requisitado
-        foreach ($scopes[$routeUri]['actions'] as $attr => $permission) {
+        foreach ($scopes[static::$routeUri]['actions'] as $attr => $permission) {
             if(in_array($permission, $this->methodToPermission[$request->method()])) {
                 static::$allowedAttributes[] = $attr;
             }
@@ -120,9 +133,8 @@ class Authenticate extends Middleware
 
                 case 'POST':
                 case 'PUT':
-                    // Se os atributos de interseção forem mais que os da requisição, significa que
-                    // a requisição tem atributos não permitidos
-                    // dd(array_values(array_diff(array_keys($request->all()), static::$allowedAttributes)));
+                // Se os atributos de interseção forem mais que os da requisição, significa que
+                // a requisição tem atributos não permitidos
                 if(!empty(array_diff(array_keys($request->all()), static::$allowedAttributes))) {
                     throw new AuthenticationException(
                         'A sessão não tem permissão de acesso ao atributo ['.
