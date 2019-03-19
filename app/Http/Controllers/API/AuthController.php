@@ -5,7 +5,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\User;
-use App\Models\Person;
 use App\Models\Profile;
 use App\Models\UserProfile;
 class AuthController extends Controller
@@ -25,18 +24,15 @@ class AuthController extends Controller
     public function signup(Request $request)
     {
         $request->validate([
-            'dip' => 'required|numeric|between:100000,99999999999999999999999999999999|exists:persons|unique:users,login',
+            'login' => 'required|numeric|between:100000,99999999999999999999999|unique:users,login',
             'email' => 'required|email|unique:users',
             'password' => 'required|string|between:6,15'
         ]);
 
-        $person = Person::where(['dip' => $request->dip])->first();
-
         $user = new User([
-            'person_id' => $person->id,
-            'type_user_id' => 1,
-            'status_user_id' => 1,
-            'login' => $request->dip,
+            'user_type_id' => 1,
+            'user_situation_id' => 1,
+            'login' => $request->login,
             'email' => $request->email,
             'password' => bcrypt($request->password)
         ]);
@@ -59,7 +55,7 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $request->validate([
-            'login' => 'required_without:email|numeric|between:100000,99999999999999999999999999999999|exists:users',
+            'login' => 'required_without:email|between:5,20|exists:users',
             'email' => 'required_without:login|email|exists:users',
             'password' => 'required|string|between:6,15',
             'remember_me' => 'boolean'
@@ -92,7 +88,7 @@ class AuthController extends Controller
             'expires_at' => Carbon::parse(
                 $tokenResult->token->expires_at
             )->toDateTimeString(),
-            'profiles' => Profile::where(['id' => $profileIds])->get(['id', 'noun', 'description'])
+            'profiles' => Profile::whereIN('id',$profileIds)->get(['id', 'noun', 'description'])
         ]);
     }
 

@@ -25,5 +25,3 @@ Route::group([
 	Route::get('user', 'AuthController@user');
 	Route::get('define_profile/{id}', 'AuthController@defineProfile');
 });
-
-Route::resource('persons', 'PersonAPIController');

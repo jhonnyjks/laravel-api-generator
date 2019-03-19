@@ -12,7 +12,7 @@ class Authenticate extends Middleware
     private static $except = ['auth/define_profile'];
     private static $isRouteExcept = false;
     //Endpoints que não necessitam de autenticação (públicos)
-    private static $publicRoutes = ['auth/login'];
+    private static $publicRoutes = ['auth/login', 'auth/signup'];
     //URI formatada para a validação via $scopes
     private static $routeUri = null;
 
