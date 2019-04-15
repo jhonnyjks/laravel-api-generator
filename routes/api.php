@@ -24,4 +24,15 @@ Route::group([
 	Route::get('logout', 'AuthController@logout');
 	Route::get('user', 'AuthController@user');
 	Route::get('define_profile/{id}', 'AuthController@defineProfile');
+	
+	Route::get('permissions/use-all', [
+		'as' => 'api.permissions.useAll',
+		'uses' => 'AuthController@setAllPermissions'
+	]);
+	
 });
+
+Route::get('permissions/all', [
+	'as' => 'api.permissions.all',
+	'uses' => 'AuthController@accessibleRoutes'
+]);

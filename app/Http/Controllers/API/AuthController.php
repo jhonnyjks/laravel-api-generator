@@ -36,7 +36,9 @@ class AuthController extends Controller
             'email' => $request->email,
             'password' => bcrypt($request->password)
         ]);
+
         $user->save();
+
         return response()->json([
             'message' => 'Acesso criado com sucesso!'
         ], 201);
@@ -60,18 +62,25 @@ class AuthController extends Controller
             'password' => 'required|string|between:6,15',
             'remember_me' => 'boolean'
         ]);
+
         $credentials = request([!empty($request->login) ? 'login' : 'email', 'password']);
-        if(!Auth::attempt($credentials))
+
+        if(!Auth::attempt($credentials)) {
+
             return response()->json([
                 'message' => 'Acesso não autorizado.'
             ], 401);
+        }
+
         $user = $request->user();
         $tokenResult = $user->createToken('Token pessoal '.$user->id);
         $token = $tokenResult->token;
 
-        if ($request->remember_me)
+        if ($request->remember_me) {
             $token->expires_at = Carbon::now()->addDays(1);
-        else $token->expires_at = Carbon::now()->addMinutes(30);
+        } else {
+            $token->expires_at = Carbon::now()->addMinutes(30);
+        }
 
         $profileIds = [];
         $userProfiles = UserProfile::where(['user_id' => $user->id])->get(['profile_id']);
@@ -79,7 +88,7 @@ class AuthController extends Controller
         foreach($userProfiles as $profile) {
             $profileIds[] = $profile->profile_id;
         }
-   
+
         $token->save();
 
         return response()->json([
@@ -123,5 +132,102 @@ class AuthController extends Controller
     public function defineProfile($profileId)
     {
         return response()->json(auth()->user()->setProfile($profileId));
+    }
+
+    /**
+     * Retorna todas as rotas que podem ser relacionadas a um perfil
+     *
+     * @return [json] routes[]
+     */
+    public function accessibleRoutes() 
+    {
+        //Operações que iriam repetir a rota principal
+        $operations = [
+            'create', 
+            'store', 
+            'show', 
+            'edit', 
+            'update', 
+            'destroy'
+        ];
+        
+        //Array de rotas únicas por model
+        $routes = [];
+
+        foreach (Route::getRoutes()->getIterator() as $route)
+        {
+            if($route->getPrefix() == 'api' && !in_array(
+                substr($route->getName(), stripos($route->getName(), '.')+1), $operations)) 
+            {
+
+                // if(stripos($route->getActionName(), APIControlle))
+                $routes[] = [ 'route' => $route->uri,
+                'attributes' => '\\App\\Models\\'.substr(
+                    $route->getActionName(),
+                    stripos($route->getActionName(), '\API\\')+5,
+                    stripos($route->getActionName(), 'APIController') - stripos($route->getActionName(), '\API\\')-5
+                )];
+
+                if(class_exists($routes[sizeof($routes)-1]['attributes'])) 
+                {
+                    $routes[sizeof($routes)-1]['attributes'] = (new $routes[sizeof($routes)-1]['attributes']())->fillable;
+                } 
+                else 
+                {
+                    $routes[sizeof($routes)-1]['attributes'] =  ['_show'];
+                }
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Rotas acessíveis obtidas com sucesso!',
+            'data' => $routes
+        ]);
+    }
+
+    /**
+     * Libera todas as permissões para a sessão atual
+     *
+     * @return [json] result[]
+     */
+    public function setAllPermissions()
+    {
+        $response = $this->accessibleRoutes();
+
+        $token = auth()->user()->token();
+        $scopes = Array();
+        $permissions = $response->getData()->data;
+        $userProfile = auth()->user()->userProfiles()->first();
+
+        foreach ($permissions as $permission) 
+        {
+            $actions = array_flip($permission->attributes);
+
+            foreach ($actions as $action => $value) 
+            {
+                $actions[$action] = 15;
+            }
+
+            if(!empty($actions)) 
+            {
+                $path = str_replace('api/', '', $permission->route);
+
+                $scopes[$path] = [
+                    'actions' => $actions
+                ];
+            }
+        }
+
+        $token->update([
+            'profile_id' => 1,
+            'scopes' => $scopes
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Permissões liberadas com sucesso!',
+            'data' => $scopes
+        ]);
     }
 }
