@@ -24,13 +24,13 @@ class AuthController extends Controller
     public function signup(Request $request)
     {
         $request->validate([
-            'login' => 'required|numeric|between:100000,99999999999999999999999|unique:users,login',
+            'login' => 'required|between:5,50|unique:users,login',
             'email' => 'required|email|unique:users',
             'password' => 'required|string|between:6,15'
         ]);
 
         $user = new User([
-            'user_type_id' => 1,
+            'user_type_id' => 3,
             'user_situation_id' => 1,
             'login' => $request->login,
             'email' => $request->email,

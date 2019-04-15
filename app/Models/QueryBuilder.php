@@ -22,12 +22,16 @@ class QueryBuilder extends Builder
      */
     public function get($columns = ['*'])
     {
-        // Aplicando as exceções de rodas que não devem ser tratadas
-        if(!Authenticate::isRouteExcept() && request()->method() != 'DELETE') {
+        // Aplicando as exceções de rotas que não devem ser tratadas
+        if(!Authenticate::isRouteExcept() && request()->method() != 'DELETE') 
+        {
             
-            if($columns[0] == '*') {
+            if($columns[0] == '*') 
+            {
                 $columns = Authenticate::$allowedAttributes;
-            } else {
+            } 
+            else 
+            {
                 $columns = array_intersect($columns, Authenticate::$allowedAttributes);
             }
         }
