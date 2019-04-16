@@ -21,6 +21,10 @@ Route::group([
 		'as' => 'api.auth.login',
 		'uses' => 'AuthController@login'
 	]);
+	Route::get('validate', [
+		'as' => 'api.auth.validate',
+		'uses' => 'AuthController@validateToken'
+	]);
 	Route::get('logout', 'AuthController@logout');
 	Route::get('user', 'AuthController@user');
 	Route::get('define_profile/{id}', 'AuthController@defineProfile');

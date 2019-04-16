@@ -9,10 +9,21 @@ use App\Models\Permission;
 class Authenticate extends Middleware
 {
     //Endpoints que não necessitam de perfil definido
-    private static $except = ['auth/define_profile', 'auth/permissions/use-all', 'auth/user'];
+    private static $except = [
+        'auth/define_profile',
+        'auth/permissions/use-all', 
+        'auth/user',
+        'auth/validate'
+    ];
+
     private static $isRouteExcept = false;
+    
     //Endpoints que não necessitam de autenticação (públicos)
-    private static $publicRoutes = ['auth/login', 'auth/signup'];
+    private static $publicRoutes = [
+        'auth/login',
+        'auth/signup'
+    ];
+
     //URI formatada para a validação via $scopes
     private static $routeUri = null;
 

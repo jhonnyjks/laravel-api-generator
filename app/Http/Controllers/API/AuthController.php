@@ -1,5 +1,6 @@
 <?php
 namespace App\Http\Controllers\API;
+
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -7,6 +8,7 @@ use Carbon\Carbon;
 use App\User;
 use App\Models\Profile;
 use App\Models\UserProfile;
+
 class AuthController extends Controller
 {
     //Campo usado com a senha na autenticação
@@ -24,7 +26,8 @@ class AuthController extends Controller
     public function signup(Request $request)
     {
         $request->validate([
-            'login' => 'required|between:5,50|unique:users,login',
+            'name' => 'between:8,150',
+            'login' => 'between:5,50|unique:users,login',
             'email' => 'required|email|unique:users',
             'password' => 'required|string|between:6,15'
         ]);
@@ -32,7 +35,7 @@ class AuthController extends Controller
         $user = new User([
             'user_type_id' => 3,
             'user_situation_id' => 1,
-            'login' => $request->login,
+            'login' => !empty($request->login) ? $request->login : null,
             'email' => $request->email,
             'password' => bcrypt($request->password)
         ]);
@@ -40,7 +43,7 @@ class AuthController extends Controller
         $user->save();
 
         return response()->json([
-            'message' => 'Acesso criado com sucesso!'
+            'message' => 'Usuário criado com sucesso!'
         ], 201);
     }
 
@@ -65,7 +68,7 @@ class AuthController extends Controller
 
         $credentials = request([!empty($request->login) ? 'login' : 'email', 'password']);
 
-        if(!Auth::attempt($credentials)) {
+        if (!Auth::attempt($credentials)) {
 
             return response()->json([
                 'message' => 'Acesso não autorizado.'
@@ -73,7 +76,7 @@ class AuthController extends Controller
         }
 
         $user = $request->user();
-        $tokenResult = $user->createToken('Token pessoal '.$user->id);
+        $tokenResult = $user->createToken('Token pessoal ' . $user->id);
         $token = $tokenResult->token;
 
         if ($request->remember_me) {
@@ -85,19 +88,58 @@ class AuthController extends Controller
         $profileIds = [];
         $userProfiles = UserProfile::where(['user_id' => $user->id])->get(['profile_id']);
 
-        foreach($userProfiles as $profile) {
+        foreach ($userProfiles as $profile) {
             $profileIds[] = $profile->profile_id;
         }
 
         $token->save();
 
         return response()->json([
-            'user_token' => $tokenResult->accessToken,
-            'token_type' => 'Bearer',
-            'expires_at' => Carbon::parse(
-                $tokenResult->token->expires_at
-            )->toDateTimeString(),
-            'profiles' => Profile::whereIN('id',$profileIds)->get(['id', 'noun', 'description'])
+            'message' => 'Usuário autenticado com sucesso!',
+            'data' => [
+                'token' => [
+                    'token' => $tokenResult->accessToken,
+                    'type' => 'Bearer',
+                    'expires_at' => Carbon::parse(
+                        $tokenResult->token->expires_at
+                    )->toDateTimeString()
+                ],
+                'user' => User::find($user->id, ['login', 'name', 'email', 'last_access', 'created_at']),
+                'profiles' => Profile::whereIN('id', $profileIds)->get(['id', 'noun', 'description'])
+            ]
+        ]);
+    }
+
+    /**
+     * Validate token and return session data
+     *
+     * @return [string] user_token
+     * @return [string] token_type
+     * @return [string] expires_at
+     */
+    public function validateToken()
+    {
+        $user = auth()->user();
+        $token = $user->token();
+        $profileIds = [];
+        $userProfiles = UserProfile::where(['user_id' => $user->id])->get(['profile_id']);
+
+        foreach ($userProfiles as $profile) {
+            $profileIds[] = $profile->profile_id;
+        }
+
+        return response()->json([
+            'message' => 'Usuário autenticado com sucesso!',
+            'data' => [
+                'token' => [
+                    'profile_id' => $token->profile_id,
+                    'expires_at' => Carbon::parse(
+                        $token->expires_at
+                    )->toDateTimeString()
+                ],
+                'user' => User::find($user->id, ['login', 'name', 'email', 'last_access', 'created_at']),
+                'profiles' => Profile::whereIN('id', $profileIds)->get(['id', 'noun', 'description'])
+            ]
         ]);
     }
 
@@ -139,42 +181,41 @@ class AuthController extends Controller
      *
      * @return [json] routes[]
      */
-    public function accessibleRoutes() 
+    public function accessibleRoutes()
     {
         //Operações que iriam repetir a rota principal
         $operations = [
-            'create', 
-            'store', 
-            'show', 
-            'edit', 
-            'update', 
+            'create',
+            'store',
+            'show',
+            'edit',
+            'update',
             'destroy'
         ];
-        
+
         //Array de rotas únicas por model
         $routes = [];
 
-        foreach (Route::getRoutes()->getIterator() as $route)
-        {
-            if($route->getPrefix() == 'api' && !in_array(
-                substr($route->getName(), stripos($route->getName(), '.')+1), $operations)) 
-            {
+        foreach (Route::getRoutes()->getIterator() as $route) {
+            if ($route->getPrefix() == 'api' && !in_array(
+                substr($route->getName(), stripos($route->getName(), '.') + 1),
+                $operations
+            )) {
 
                 // if(stripos($route->getActionName(), APIControlle))
-                $routes[] = [ 'route' => $route->uri,
-                'attributes' => '\\App\\Models\\'.substr(
-                    $route->getActionName(),
-                    stripos($route->getActionName(), '\API\\')+5,
-                    stripos($route->getActionName(), 'APIController') - stripos($route->getActionName(), '\API\\')-5
-                )];
+                $routes[] = [
+                    'route' => $route->uri,
+                    'attributes' => '\\App\\Models\\' . substr(
+                        $route->getActionName(),
+                        stripos($route->getActionName(), '\API\\') + 5,
+                        stripos($route->getActionName(), 'APIController') - stripos($route->getActionName(), '\API\\') - 5
+                    )
+                ];
 
-                if(class_exists($routes[sizeof($routes)-1]['attributes'])) 
-                {
-                    $routes[sizeof($routes)-1]['attributes'] = (new $routes[sizeof($routes)-1]['attributes']())->fillable;
-                } 
-                else 
-                {
-                    $routes[sizeof($routes)-1]['attributes'] =  ['_show'];
+                if (class_exists($routes[sizeof($routes) - 1]['attributes'])) {
+                    $routes[sizeof($routes) - 1]['attributes'] = (new $routes[sizeof($routes) - 1]['attributes']())->fillable;
+                } else {
+                    $routes[sizeof($routes) - 1]['attributes'] =  ['_show'];
                 }
             }
         }
@@ -196,21 +237,18 @@ class AuthController extends Controller
         $response = $this->accessibleRoutes();
 
         $token = auth()->user()->token();
-        $scopes = Array();
+        $scopes = array();
         $permissions = $response->getData()->data;
         $userProfile = auth()->user()->userProfiles()->first();
 
-        foreach ($permissions as $permission) 
-        {
+        foreach ($permissions as $permission) {
             $actions = array_flip($permission->attributes);
 
-            foreach ($actions as $action => $value) 
-            {
+            foreach ($actions as $action => $value) {
                 $actions[$action] = 15;
             }
 
-            if(!empty($actions)) 
-            {
+            if (!empty($actions)) {
                 $path = str_replace('api/', '', $permission->route);
 
                 $scopes[$path] = [
