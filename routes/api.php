@@ -40,3 +40,6 @@ Route::get('permissions/all', [
 	'as' => 'api.permissions.all',
 	'uses' => 'AuthController@accessibleRoutes'
 ]);
+
+
+Route::resource('users', 'UserAPIController');
