@@ -8,6 +8,7 @@ use Carbon\Carbon;
 use App\User;
 use App\Models\Profile;
 use App\Models\UserProfile;
+use Illuminate\Support\Facades\Route;
 
 class AuthController extends Controller
 {

@@ -43,7 +43,11 @@ class User extends Model
 
     protected $dates = ['deleted_at'];
 
-
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
     public $fillable = [
         'user_type_id',
         'user_situation_id',
@@ -54,6 +58,15 @@ class User extends Model
         'email_verified_at',
         'last_access'
     ];
+ 
+     /**
+      * The attributes that should be hidden for arrays.
+      *
+      * @var array
+      */
+     protected $hidden = [
+         'password', 'remember_token', 'last_access'
+     ];
 
     /**
      * The attributes that should be casted to native types.
@@ -64,7 +77,9 @@ class User extends Model
         'login' => 'string',
         'name' => 'string',
         'password' => 'string',
-        'email' => 'string'
+        'email' => 'string',
+        'user_type_id' => 'integer',
+        'user_situation_id' => 'integer'
     ];
 
     /**
@@ -73,7 +88,12 @@ class User extends Model
      * @var array
      */
     public static $rules = [
-        
+        'login' => 'required_without:email|between:5,20|unique:users',
+        'email' => 'required_without:login|email|unique:users',
+        'password' => 'required|string|between:6,15',
+        'name' => 'required|string|between:6,150',
+        'user_type_id' => 'integer|exists:user_types,id',
+        'user_situation_id' => 'integer|exists:user_situations,id'
     ];
 
     /**
