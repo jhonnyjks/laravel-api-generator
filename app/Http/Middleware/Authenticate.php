@@ -31,7 +31,7 @@ class Authenticate extends Middleware
     private $methodToPermission = [
         'GET' => [1, 3, 5, 7, 9, 11, 13, 15],
         'POST' => [2, 3, 6, 7, 10, 11, 14, 15],
-        'PUT' => [4, 5, 6, 7, 12, 13, 14, 14],
+        'PUT' => [4, 5, 6, 7, 12, 13, 14, 15],
         'DELETE' => [8, 9, 10, 11, 12, 13, 14, 15]
     ];
 
