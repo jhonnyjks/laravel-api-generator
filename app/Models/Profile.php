@@ -6,28 +6,20 @@ use App\Models\BaseModel as Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Class Profile
- * @package App\Models
- * @version February 7, 2019, 7:09 pm UTC
- *
- * @property \Illuminate\Database\Eloquent\Collection buildCorrections
- * @property \Illuminate\Database\Eloquent\Collection personActivities
- * @property \Illuminate\Database\Eloquent\Collection personalDetails
- * @property \Illuminate\Database\Eloquent\Collection owners
- * @property \Illuminate\Database\Eloquent\Collection ProfileCity
- * @property \Illuminate\Database\Eloquent\Collection streets
- * @property \Illuminate\Database\Eloquent\Collection streetBlocks
- * @property \Illuminate\Database\Eloquent\Collection tributeCovenants
- * @property \Illuminate\Database\Eloquent\Collection serviceActivities
- * @property \Illuminate\Database\Eloquent\Collection userProfileActions
- * @property \Illuminate\Database\Eloquent\Collection persons
- * @property \Illuminate\Database\Eloquent\Collection activityAddresses
- * @property \Illuminate\Database\Eloquent\Collection activityTaxes
- * @property \Illuminate\Database\Eloquent\Collection beneficiaries
- * @property \Illuminate\Database\Eloquent\Collection Permission
- * @property \Illuminate\Database\Eloquent\Collection UserProfile
- * @property string noun
- * @property string description
+ * @SWG\Definition(
+ *      definition="Profile",
+ *      required={""},
+ *      @SWG\Property(
+ *          property="noun",
+ *          description="noun",
+ *          type="string"
+ *      ),
+ *      @SWG\Property(
+ *          property="description",
+ *          description="description",
+ *          type="string"
+ *      )
+ * )
  */
 class Profile extends Model
 {
@@ -63,16 +55,9 @@ class Profile extends Model
      * @var array
      */
     public static $rules = [
-        
+        'noun' => 'required|string|between:3,20|unique:profiles,noun,{id}',
+        'description' => 'required|string|between:5,200'
     ];
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     **/
-    public function profileCities()
-    {
-        return $this->hasMany(\App\Models\ProfileCity::class);
-    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany

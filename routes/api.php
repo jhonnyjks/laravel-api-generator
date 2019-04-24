@@ -43,3 +43,5 @@ Route::get('permissions/all', [
 
 
 Route::resource('users', 'UserAPIController');
+
+Route::resource('profiles', 'ProfileAPIController');
