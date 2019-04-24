@@ -153,21 +153,23 @@ class Authenticate extends Middleware
             {
                 case 'GET':
                     //ID é permanente no GET
-                array_unshift(static::$allowedAttributes, 'id');
+                    array_unshift(static::$allowedAttributes, 'id');
                 break;
 
-                case 'POST':
                 case 'PUT':
-                // Se os atributos de interseção forem mais que os da requisição, significa que
-                // a requisição tem atributos não permitidos
-                if(!empty(array_diff(array_keys($request->all()), static::$allowedAttributes))) 
-                {
-                    throw new AuthenticationException(
-                        'A sessão não tem permissão de acesso ao atributo ['.
-                        array_values(array_diff(array_keys($request->all()), static::$allowedAttributes))[0].
-                        '] no método ['.$request->method().']', [], $this->redirectTo($request)
-                    );
-                }
+                    //ID é permanente no PUT
+                    array_unshift(static::$allowedAttributes, 'id');
+                case 'POST':
+                    // Se os atributos de interseção forem mais que os da requisição, significa que
+                    // a requisição tem atributos não permitidos
+                    if(!empty(array_diff(array_keys($request->all()), static::$allowedAttributes))) 
+                    {
+                        throw new AuthenticationException(
+                            'A sessão não tem permissão de acesso ao atributo ['.
+                            array_values(array_diff(array_keys($request->all()), static::$allowedAttributes))[0].
+                            '] no método ['.$request->method().']', [], $this->redirectTo($request)
+                        );
+                    }
                 break;
             }
         }
