@@ -37,4 +37,18 @@ class UserRepository extends BaseRepository
     {
         return User::class;
     }
+
+    public function create(array $attributes)
+    {
+        if(!empty($attributes['password'])) $attributes['password'] = bcrypt($attributes['password']);
+        
+        return parent::create($attributes);
+    }
+
+    public function update(array $attributes, $id)
+    {
+        if(!empty($attributes['password'])) $attributes['password'] = bcrypt($attributes['password']);
+        
+        return parent::update($attributes, $id);
+    }
 }
