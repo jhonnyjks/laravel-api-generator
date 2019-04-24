@@ -88,8 +88,8 @@ class User extends Model
      * @var array
      */
     public static $rules = [
-        'login' => 'required_without:email|between:5,20|unique:users',
-        'email' => 'required_without:login|email|unique:users',
+        'login' => 'required_without:email|between:5,20|unique:users,login,{id}',
+        'email' => 'required_without:login|email|unique:users,email,{id}',
         'password' => 'required|string|between:6,15',
         'name' => 'required|string|between:6,150',
         'user_type_id' => 'integer|exists:user_types,id',

@@ -24,6 +24,6 @@ class UpdateUserAPIRequest extends APIRequest
      */
     public function rules()
     {
-        return User::$rules;
+        return str_replace('{id}', $this->user, User::$rules);
     }
 }
