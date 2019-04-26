@@ -24,6 +24,6 @@ class UpdateProfileAPIRequest extends APIRequest
      */
     public function rules()
     {
-        return str_replace('{id}', $this->user, Profile::$rules);
+        return str_replace('{id}', $this->profile, Profile::$rules);
     }
 }
