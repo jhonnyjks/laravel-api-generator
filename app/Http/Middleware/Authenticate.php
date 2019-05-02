@@ -5,19 +5,19 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
 use Illuminate\Auth\AuthenticationException;
-use App\Models\Permission;
+
 class Authenticate extends Middleware
 {
     //Endpoints que não necessitam de perfil definido
     private static $except = [
         'auth/define_profile',
-        'auth/permissions/use-all', 
+        'auth/permissions/use-all',
         'auth/user',
         'auth/validate'
     ];
 
     private static $isRouteExcept = false;
-    
+
     //Endpoints que não necessitam de autenticação (públicos)
     private static $publicRoutes = [
         'auth/login',
@@ -25,7 +25,7 @@ class Authenticate extends Middleware
     ];
 
     //URI formatada para a validação via $scopes
-    private static $routeUri = null;
+    public static $routeUri = null;
 
     // Mapeando os métodos às permissões (Action->code)
     private $methodToPermission = [
@@ -35,8 +35,8 @@ class Authenticate extends Middleware
         'DELETE' => [8, 9, 10, 11, 12, 13, 14, 15]
     ];
 
-    // Atributos da model que foram permitidos nessa requisição
-    public static $allowedAttributes = Array();
+    // Atributos das models que foram permitidos nessa requisição, mapeados pela rota
+    public static $allowedAttributes = array();
 
     /**
      * Handle an incoming request.
@@ -53,12 +53,9 @@ class Authenticate extends Middleware
         //Obtendo URI formatada para a validação via $scopes
         static::$routeUri = preg_replace('[\/\{(\w+)\}]', '', str_replace('api/', '', $request->route()->uri()));
 
-        if(!in_array(static::$routeUri, static::$publicRoutes)) 
-        {
+        if (!in_array(static::$routeUri, static::$publicRoutes)) {
             $this->authenticate($request, $guards);
-        } 
-        else 
-        {
+        } else {
             static::$isRouteExcept = true;
         }
 
@@ -77,7 +74,7 @@ class Authenticate extends Middleware
         //TODO: Tratar resposta para acessos sem o header "Accept: application/json"
 
         // if (!$request->expectsJson()) {
-            // return route('login');
+        // return route('login');
         // } else {
         return route('api.auth.login');
         // }
@@ -95,15 +92,12 @@ class Authenticate extends Middleware
      */
     protected function authenticate($request, array $guards)
     {
-        if (empty($guards)) 
-        {
+        if (empty($guards)) {
             $guards = [null];
         }
 
-        foreach ($guards as $guard) 
-        {
-            if ($this->auth->guard($guard)->check()) 
-            {
+        foreach ($guards as $guard) {
+            if ($this->auth->guard($guard)->check()) {
 
                 $this->testPermission($request, $guard);
 
@@ -112,79 +106,121 @@ class Authenticate extends Middleware
         }
 
         throw new AuthenticationException(
-            'Não autenticado.', $guards, $this->redirectTo($request)
+            'Não autenticado.',
+            $guards,
+            $this->redirectTo($request)
         );
     }
 
-    private function testPermission($request, $guard) 
+    private function testPermission($request, $guard)
     {
 
         $token = $this->auth->guard($guard)->user()->token();
         $scopes = $token->scopes;
 
-        //Obtendo URI formatada para a validação via $scopes
-        // static::$routeUri = preg_replace('[\/\{(\w+)\}]', '', str_replace('api/', '', $request->route()->uri()));
-
-        if(in_array(static::$routeUri, static::$except)) 
-        {
+        if (in_array(static::$routeUri, static::$except)) {
             static::$isRouteExcept = true;
             return;
-        }
-        elseif(empty($scopes[static::$routeUri])) 
-        {
+        } elseif (empty($scopes[static::$routeUri])) {
             throw new AuthenticationException(
-                'Se o caminho existe, a sessão não tem permissão de acesso.', [], $this->redirectTo($request)
+                'Se o caminho existe, a sessão não tem permissão de acesso.',
+                [],
+                $this->redirectTo($request)
             );
         }
 
         //Verifica em todos os atributos do usuário e seleciona os atributos que se
         //encaixam no método requisitado
-        foreach ($scopes[static::$routeUri]['actions'] as $attr => $permission) 
-        {
-            if(in_array($permission, $this->methodToPermission[$request->method()])) 
-            {
-                static::$allowedAttributes[] = $attr;
+        foreach ($scopes[static::$routeUri]['actions'] as $attr => $permission) {
+            if (in_array($permission, $this->methodToPermission[$request->method()])) {
+                static::$allowedAttributes[static::$routeUri][] = $attr;
             }
         }
 
-        if(!empty(static::$allowedAttributes)) 
-        {
-            switch ($request->method()) 
-            {
+        if (!empty(static::$allowedAttributes[static::$routeUri])) {
+            switch ($request->method()) {
                 case 'GET':
                     //ID é permanente no GET
-                    array_unshift(static::$allowedAttributes, 'id');
-                break;
+                    array_unshift(static::$allowedAttributes[static::$routeUri], 'id');
+                    $this->definePermissionsFromParams($request, $scopes);
+                    break;
 
                 case 'PUT':
                     //ID é permanente no PUT
-                    array_unshift(static::$allowedAttributes, 'id');
+                    array_unshift(static::$allowedAttributes[static::$routeUri], 'id');
                 case 'POST':
                     // Se os atributos de interseção forem mais que os da requisição, significa que
                     // a requisição tem atributos não permitidos
-                    if(!empty(array_diff(array_keys($request->all()), static::$allowedAttributes))) 
-                    {
+                    if (!empty(array_diff(array_keys($request->all()), static::$allowedAttributes[static::$routeUri]))) {
                         throw new AuthenticationException(
-                            'A sessão não tem permissão de acesso ao atributo ['.
-                            array_values(array_diff(array_keys($request->all()), static::$allowedAttributes))[0].
-                            '] no método ['.$request->method().']', [], $this->redirectTo($request)
+                            'A sessão não tem permissão de acesso ao atributo [' .
+                                array_values(array_diff(array_keys($request->all()), static::$allowedAttributes[static::$routeUri]))[0] .
+                                '] no método [' . $request->method() . ']',
+                            [],
+                            $this->redirectTo($request)
                         );
                     }
-                break;
+                    break;
             }
-        }
-        else 
-        {
+        } else {
             throw new AuthenticationException(
-                'Se o caminho existe, a sessão não tem permissão de acesso a nenhum atributo no método '. 
-                $request->method(), [], $this->redirectTo($request)
+                'Se o caminho existe, a sessão não tem permissão de acesso a nenhum atributo no método ' .
+                    $request->method(),
+                [],
+                $this->redirectTo($request)
             );
         }
     }
 
-    public static function isRouteExcept() 
+    public static function isRouteExcept()
     {
         return static::$isRouteExcept;
+    }
+
+    /**
+     * Validar e definir em $allowedAttributes as rotas e atributos vindos por parâmetros (Geralmente GET) 
+     * @param  \Illuminate\Http\Request  $request
+     * @return void
+     *
+     * @throws \Illuminate\Auth\AuthenticationException
+     */
+    private function definePermissionsFromParams($request, $scopes)
+    {
+        if (!empty($request->with)) {
+            foreach (explode(';', $request->with) as $relation) {
+                $relation = explode(':', $relation);
+                if (strpos($relation[0], '.') > -1) $relation[0] = explode('.', $relation[0])[1];
+
+                if (!in_array($relation[0], static::$except) && empty($scopes[$relation[0]])) {
+                    throw new AuthenticationException(
+                        "Se o caminho '$relation[0]' existe, a sessão não tem permissão de acesso.",
+                        [],
+                        $this->redirectTo($request)
+                    );
+                }
+
+                //Verifica em todos os atributos da rota e seleciona os atributos que se
+                //encaixam no método requisitado
+                foreach ($scopes[$relation[0]]['actions'] as $attr => $permission) {
+                    if (in_array($permission, $this->methodToPermission[$request->method()])) {
+                        static::$allowedAttributes[$relation[0]][] = $attr;
+                    }
+                }
+
+                if (!empty(static::$allowedAttributes[$relation[0]])) {
+
+                    //Tratando apenas GET
+                    switch ($request->method()) {
+                        case 'GET':
+                            //ID é permanente no GET
+                            array_unshift(static::$allowedAttributes[$relation[0]], 'id');
+                            break;
+                    }
+                }
+
+                dd(static::$allowedAttributes);
+            }
+        }
     }
 }
 /* Definição atual das permissões dos atributos (Action->conde).

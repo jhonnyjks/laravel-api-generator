@@ -28,11 +28,11 @@ class QueryBuilder extends Builder
             
             if($columns[0] == '*') 
             {
-                $columns = Authenticate::$allowedAttributes;
+                $columns = Authenticate::$allowedAttributes[Authenticate::$routeUri];
             } 
             else 
             {
-                $columns = array_intersect($columns, Authenticate::$allowedAttributes);
+                $columns = array_intersect($columns, Authenticate::$allowedAttributes[Authenticate::$routeUri]);
             }
         }
         return parent::get($columns);
