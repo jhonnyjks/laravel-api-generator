@@ -22,17 +22,25 @@ class QueryBuilder extends Builder
      */
     public function get($columns = ['*'])
     {
+        $route = Authenticate::$routeUri;
+
+        // Caso a rota venha em parâmetros ('with', por exemplo), alterar para a rota certa.
+        // Isso permite buscar informações aninhadas (relações) em uma só requisição.
+        if(sizeof(Authenticate::$allowedAttributes) > 1 && !empty(Authenticate::$allowedAttributes[$this->from])) {
+            $route = $this->from;
+        }
+
         // Aplicando as exceções de rotas que não devem ser tratadas
         if(!Authenticate::isRouteExcept() && request()->method() != 'DELETE') 
         {
             
             if($columns[0] == '*') 
             {
-                $columns = Authenticate::$allowedAttributes[Authenticate::$routeUri];
-            } 
+                $columns = Authenticate::$allowedAttributes[$route];
+            }
             else 
             {
-                $columns = array_intersect($columns, Authenticate::$allowedAttributes[Authenticate::$routeUri]);
+                $columns = array_intersect($columns, Authenticate::$allowedAttributes[$route]);
             }
         }
         return parent::get($columns);

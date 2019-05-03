@@ -217,28 +217,26 @@ class Authenticate extends Middleware
                             break;
                     }
                 }
-
-                dd(static::$allowedAttributes);
             }
         }
     }
 }
 /* Definição atual das permissões dos atributos (Action->conde).
  * Octal não foi suficiente, então fiz hexadecimal.
-0 - No access/Null
-1 - Read
-2 - Insert
-3 - Read, Insert
-4 - Update
-5 - Read, Update
-6 - Insert, Update
-7 - Read, Insert, Update
-8 - Delete
-9 - Read, Delete
-10 - Insert, Delete
-11 - Read, Insert, Delete
-12 - Update, Delete
-13 - Read, Update, Delete
-14 - Insert, Update, Delete
-15 - Read, Insert, Update, Delete
-*/
+ * 0 - No access/Null
+ * 1 - Read
+ * 2 - Insert
+ * 3 - Read, Insert
+ * 4 - Update
+ * 5 - Read, Update
+ * 6 - Insert, Update
+ * 7 - Read, Insert, Update
+ * 8 - Delete
+ * 9 - Read, Delete
+ * 10 - Insert, Delete
+ * 11 - Read, Insert, Delete
+ * 12 - Update, Delete
+ * 13 - Read, Update, Delete
+ * 14 - Insert, Update, Delete
+ * 15 - Read, Insert, Update, Delete
+ */
