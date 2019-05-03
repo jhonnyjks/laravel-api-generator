@@ -47,3 +47,5 @@ Route::resource('users', 'UserAPIController');
 Route::resource('profiles', 'ProfileAPIController');
 
 Route::resource('permissions', 'PermissionAPIController');
+
+Route::resource('actions', 'ActionAPIController');
