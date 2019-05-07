@@ -11,7 +11,7 @@
  Target Server Version : 100137
  File Encoding         : 65001
 
- Date: 06/05/2019 20:23:24
+ Date: 07/05/2019 18:55:39
 */
 
 SET NAMES utf8mb4;
@@ -33,22 +33,34 @@ CREATE TABLE `actions`  (
   INDEX `action_id`(`id`) USING BTREE,
   INDEX `permission_id_action`(`permission_id`) USING BTREE,
   CONSTRAINT `action_fk_permission` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE = InnoDB AUTO_INCREMENT = 16 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'Contém as ações que definem uma permissão' ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 39 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'Contém as ações que definem uma permissão' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Records of actions
 -- ----------------------------
-INSERT INTO `actions` VALUES (1, 1, 'user_type_id', 11, '2019-05-06 22:50:05', NULL, '2019-04-30 16:26:11');
-INSERT INTO `actions` VALUES (5, 1, 'login', 15, '2019-05-06 22:55:39', NULL, '2019-04-30 16:26:11');
+INSERT INTO `actions` VALUES (1, 1, 'user_type_id', 1, '2019-05-07 18:38:24', '2019-05-07 18:38:24', '2019-04-30 16:26:11');
+INSERT INTO `actions` VALUES (5, 1, 'login', 7, '2019-05-07 21:10:12', NULL, '2019-04-30 16:26:11');
 INSERT INTO `actions` VALUES (6, 1, 'user_situation_id', 1, '2019-05-06 23:14:20', '2019-05-06 23:14:20', '2019-05-06 23:08:03');
-INSERT INTO `actions` VALUES (8, 1, 'name', 3, '2019-05-06 23:10:38', NULL, '2019-05-06 23:10:33');
-INSERT INTO `actions` VALUES (9, 1, 'email', 3, '2019-05-06 23:13:31', NULL, '2019-05-06 23:13:28');
+INSERT INTO `actions` VALUES (8, 1, 'name', 7, '2019-05-07 21:31:21', NULL, '2019-05-06 23:10:33');
+INSERT INTO `actions` VALUES (9, 1, 'email', 7, '2019-05-07 21:10:10', NULL, '2019-05-06 23:13:28');
 INSERT INTO `actions` VALUES (10, 1, 'user_situation_id', 7, '2019-05-06 23:14:55', NULL, '2019-05-06 23:14:28');
-INSERT INTO `actions` VALUES (11, 1, 'email_verified_at', 1, '2019-05-06 23:15:12', NULL, '2019-05-06 23:15:12');
+INSERT INTO `actions` VALUES (11, 1, 'email_verified_at', 1, '2019-05-07 21:10:32', NULL, '2019-05-06 23:15:12');
 INSERT INTO `actions` VALUES (12, 1, 'password', 8, '2019-05-06 23:17:03', '2019-05-06 23:17:03', '2019-05-06 23:15:16');
-INSERT INTO `actions` VALUES (13, 1, 'password', 4, '2019-05-06 23:17:16', NULL, '2019-05-06 23:17:16');
-INSERT INTO `actions` VALUES (14, 2, 'noun', 15, '2019-05-06 23:17:45', NULL, '2019-05-06 23:17:34');
-INSERT INTO `actions` VALUES (15, 2, 'description', 5, '2019-05-06 23:17:55', NULL, '2019-05-06 23:17:50');
+INSERT INTO `actions` VALUES (13, 1, 'password', 7, '2019-05-07 21:10:22', NULL, '2019-05-06 23:17:16');
+INSERT INTO `actions` VALUES (14, 2, 'noun', 7, '2019-05-07 21:32:10', NULL, '2019-05-06 23:17:34');
+INSERT INTO `actions` VALUES (15, 2, 'description', 7, '2019-05-07 21:09:48', NULL, '2019-05-06 23:17:50');
+INSERT INTO `actions` VALUES (16, 1, 'user_type_id', 7, '2019-05-07 21:10:23', NULL, '2019-05-07 18:38:32');
+INSERT INTO `actions` VALUES (18, 7, '_show', 1, '2019-05-07 19:08:51', NULL, '2019-05-07 19:05:07');
+INSERT INTO `actions` VALUES (19, 8, 'profile_id', 1, '2019-05-07 21:36:27', '2019-05-07 21:36:27', '2019-05-07 21:09:03');
+INSERT INTO `actions` VALUES (23, 6, 'permission_id', 15, '2019-05-07 21:09:42', NULL, '2019-05-07 21:09:29');
+INSERT INTO `actions` VALUES (24, 6, 'noun', 7, '2019-05-07 21:09:38', NULL, '2019-05-07 21:09:30');
+INSERT INTO `actions` VALUES (25, 6, 'code', 7, '2019-05-07 21:09:40', NULL, '2019-05-07 21:09:31');
+INSERT INTO `actions` VALUES (26, 1, 'last_access', 1, '2019-05-07 21:10:19', NULL, '2019-05-07 21:10:19');
+INSERT INTO `actions` VALUES (27, 12, 'user_type_id', 1, '2019-05-07 21:11:01', NULL, '2019-05-07 21:11:01');
+INSERT INTO `actions` VALUES (35, 8, 'permission_id', 7, '2019-05-07 21:36:42', NULL, '2019-05-07 21:36:37');
+INSERT INTO `actions` VALUES (36, 8, 'profile_id', 15, '2019-05-07 21:36:57', NULL, '2019-05-07 21:36:43');
+INSERT INTO `actions` VALUES (37, 8, 'priority', 7, '2019-05-07 21:36:58', NULL, '2019-05-07 21:36:45');
+INSERT INTO `actions` VALUES (38, 8, 'cpath', 7, '2019-05-07 21:36:59', NULL, '2019-05-07 21:36:50');
 
 -- ----------------------------
 -- Table structure for oauth_access_tokens
@@ -91,6 +103,7 @@ INSERT INTO `oauth_access_tokens` VALUES ('3280646b11bd885c946e55672c2f5eccf7c98
 INSERT INTO `oauth_access_tokens` VALUES ('3496bc117497b0f7f9b6f731c0789ce60b444554e227be9e7c8f54220df49013c8910a1d7427bd38', 10, NULL, 1, 'Token pessoal 10', '[]', 0, '2019-04-16 22:15:19', '2019-04-16 22:15:19', '2019-04-16 22:45:19');
 INSERT INTO `oauth_access_tokens` VALUES ('35108ae59be3c4aabf4215e032efcf6a39c672befe4eec1edbd7518b371f8f73fa03cfd42e8f237d', 3, NULL, 1, 'Token pessoal 3', '[]', 0, '2019-04-17 14:43:48', '2019-04-17 14:43:48', '2019-04-17 15:13:48');
 INSERT INTO `oauth_access_tokens` VALUES ('357a7a18ffa7b412e67996444eb30832c06261f5708e2678b2ade360b7f15059b45dc95004663ba8', 3, NULL, 1, 'Token pessoal 3', '[]', 0, '2019-04-16 20:46:10', '2019-04-16 20:46:10', '2019-04-16 21:16:11');
+INSERT INTO `oauth_access_tokens` VALUES ('3771011ec1e763a91f91110edefd520017d72abd02f9fabc4fa69d85d0a9d8830df02a0c394c4569', 3, 1, 1, 'Token pessoal 3', '{\"users\":{\"actions\":{\"login\":15,\"name\":2,\"email\":3,\"user_situation_id\":7,\"email_verified_at\":1,\"password\":4,\"user_type_id\":4}},\"profiles\":{\"actions\":{\"noun\":0,\"description\":5}},\"permissions\\/all\":{\"actions\":{\"_show\":1}}}', 0, '2019-05-07 19:11:41', '2019-05-07 19:11:41', '2019-05-07 19:41:41');
 INSERT INTO `oauth_access_tokens` VALUES ('38a972e7fa518c81135b4e66638af085d4983804b1e7c2775226cde59012367fb5f3244f61c0d182', 11, NULL, 1, 'Token pessoal 11', '[]', 0, '2019-04-17 13:49:48', '2019-04-17 13:49:48', '2019-04-17 14:19:48');
 INSERT INTO `oauth_access_tokens` VALUES ('394d670730e8c3a7b99983c0287efaa692ca1c210face687d73f3cb65a530fb1396e8d7ffaee66f6', 3, NULL, 1, 'Token pessoal 3', '[]', 0, '2019-04-17 13:47:00', '2019-04-17 13:47:00', '2019-04-17 14:17:00');
 INSERT INTO `oauth_access_tokens` VALUES ('39e4ab1e6b448c9fed307af28df606ee07e0d7a15dd64757dd1c0d10924d41267ebde4b6249980e2', 3, NULL, 1, 'Token pessoal 3', '[]', 0, '2019-04-16 14:21:52', '2019-04-16 14:21:52', '2019-04-16 14:51:52');
@@ -115,6 +128,7 @@ INSERT INTO `oauth_access_tokens` VALUES ('6d6bb91270948a4c9235a117c1bc33e6034c7
 INSERT INTO `oauth_access_tokens` VALUES ('70cf1bf7cbb3240e3c1d121fe9c23eaa3d5560e2fb5bd86b6279d17145af2b01881357c1e838c89c', 3, NULL, 1, 'Token pessoal 3', '[]', 0, '2019-04-15 22:15:07', '2019-04-15 22:15:07', '2019-04-15 22:45:07');
 INSERT INTO `oauth_access_tokens` VALUES ('713ff342d3c7e361fdc0ce495e9d49259898f7c942700ff5907b57c40ac10ea3567bf070e8b94c58', 3, NULL, 1, 'Token pessoal 3', '[]', 0, '2019-04-16 20:26:28', '2019-04-16 20:26:28', '2019-04-16 20:56:28');
 INSERT INTO `oauth_access_tokens` VALUES ('7488d9aa5002d3e4cd8a742e34f88268916562766d4d374a2c207b6cd234b97a9dcd75392c8084cb', 2, NULL, 1, 'Personal Access Token', '[]', 1, '2019-01-19 04:01:04', '2019-01-19 04:01:04', '2020-01-19 04:01:04');
+INSERT INTO `oauth_access_tokens` VALUES ('77f42b13143f4b8223b626d02d6764bcb591182fe159eabd7a7bb2d29ed569ba12a609b664f3f8e1', 3, NULL, 1, 'Token pessoal 3', '[]', 0, '2019-05-07 21:22:53', '2019-05-07 21:22:53', '2019-05-07 21:52:53');
 INSERT INTO `oauth_access_tokens` VALUES ('787aaae86ecd6f83fda090128431460d51c90f253392d27699f7d86de07bbd377c6e4808dce5dd39', 3, NULL, 1, 'Token pessoal 3', '[]', 0, '2019-04-16 20:48:04', '2019-04-16 20:48:04', '2019-04-16 21:18:04');
 INSERT INTO `oauth_access_tokens` VALUES ('79753ce2279e81d6ad814e44c6daf6a786e66c424d31e810cde4b53c5e541af5a2bbfb89ca8ee15b', 2, NULL, 1, 'Personal Access Token', '[]', 0, '2019-01-19 04:00:49', '2019-01-19 04:00:49', '2020-01-19 04:00:49');
 INSERT INTO `oauth_access_tokens` VALUES ('7f7f72bdfc596a4c39be7cf2217fa9b6f9c839ed3b2ae5d0c529f419102fdab5f8aa72fe9b238d65', 3, NULL, 1, 'Token pessoal 3', '[]', 0, '2019-04-22 20:15:48', '2019-04-22 20:15:48', '2019-04-22 20:45:48');
@@ -141,8 +155,10 @@ INSERT INTO `oauth_access_tokens` VALUES ('ae41bbb6749e08e5f597c4d6462c8ab58dc4c
 INSERT INTO `oauth_access_tokens` VALUES ('b12d6e971b814836c5bc465f77e317f8b3ccd01dee274b345cf7b99d41e907625e6126bbc2449b34', 3, 1, 1, 'Token pessoal 3', '{\"permissions\\/all\":{\"actions\":{\"_show\":15}},\"users\":{\"actions\":{\"user_type_id\":15,\"user_situation_id\":15,\"login\":15,\"name\":15,\"password\":15,\"email\":15,\"email_verified_at\":15,\"last_access\":15}}}', 0, '2019-04-22 14:25:44', '2019-04-22 14:25:44', '2019-04-22 14:55:44');
 INSERT INTO `oauth_access_tokens` VALUES ('b3ed7309283ecf8e46904ea80ea2a304a38b4f80d53baef3950d22c64c6d440687fa789aabb54b66', 3, NULL, 1, 'Token pessoal 3', '[]', 0, '2019-04-16 19:51:11', '2019-04-16 19:51:11', '2019-04-16 20:21:11');
 INSERT INTO `oauth_access_tokens` VALUES ('b528b59aa34755f8aa84c0baa7309a971281b843b5d5097062eb446ff7339f31f31d41075ecd551d', 3, NULL, 1, 'Token pessoal 3', '[]', 0, '2019-04-16 21:27:55', '2019-04-16 21:27:55', '2019-04-16 21:57:55');
+INSERT INTO `oauth_access_tokens` VALUES ('b57bf0adc433cef34c5f29313af6d45823d15ca1575c5831b3c08a6f6ec0a302927f1cd9d7e5318d', 3, NULL, 1, 'Token pessoal 3', '[]', 0, '2019-05-07 20:50:47', '2019-05-07 20:50:47', '2019-05-07 21:20:47');
 INSERT INTO `oauth_access_tokens` VALUES ('b6ee4704a1c1c8802e782f537eee282885425f9239547caa12c04adb627adce48a2963196da9df43', 3, 1, 1, 'Token pessoal 3', '{\"permissions\\/all\":{\"actions\":{\"_show\":15}},\"users\":{\"actions\":{\"user_type_id\":15,\"user_situation_id\":15,\"login\":15,\"name\":15,\"password\":15,\"email\":15,\"email_verified_at\":15,\"last_access\":15}}}', 0, '2019-04-24 17:20:55', '2019-04-24 17:20:55', '2019-04-24 17:50:55');
 INSERT INTO `oauth_access_tokens` VALUES ('b6f3c51ef2c400500b44b20420b9ddb658784157278c0ed3cd6a0b8ea79175e2bcefab8dba4b961b', 3, NULL, 1, 'Token pessoal 3', '[]', 0, '2019-04-24 17:21:48', '2019-04-24 17:21:48', '2019-04-24 17:51:48');
+INSERT INTO `oauth_access_tokens` VALUES ('baf40c62a333d4a55e742ce8c1cb7be24de190488fe0147e05820f6ab6830cd7e1b806279766c899', 3, 1, 1, 'Token pessoal 3', '{\"users\":{\"actions\":{\"login\":7,\"name\":7,\"email\":7,\"user_situation_id\":7,\"email_verified_at\":1,\"password\":7,\"user_type_id\":7,\"last_access\":1}},\"profiles\":{\"actions\":{\"noun\":7,\"description\":7}},\"actions\":{\"actions\":{\"permission_id\":15,\"noun\":7,\"code\":7}},\"permissions\\/all\":{\"actions\":{\"_show\":1}},\"permissions\":{\"actions\":{\"permission_id\":7,\"profile_id\":15,\"priority\":7,\"cpath\":7}}}', 0, '2019-05-07 21:25:48', '2019-05-07 21:25:48', '2019-05-07 21:55:48');
 INSERT INTO `oauth_access_tokens` VALUES ('c587578913761f729427c212b55d9aefc09c4e91bd454979167ad3af289df809069e5a77278854cf', 3, NULL, 1, 'Token pessoal 3', '[]', 0, '2019-04-17 13:57:53', '2019-04-17 13:57:53', '2019-04-17 14:27:53');
 INSERT INTO `oauth_access_tokens` VALUES ('c7db6e7eae28699e9028e29b1fe908a8c98cb9aa9b8bf05707167a08ab4e8c163e6f4bff43ce71f6', 3, 1, 1, 'Token pessoal 3', '{\"permissions\\/all\":{\"actions\":{\"_show\":15}},\"users\":{\"actions\":{\"user_type_id\":15,\"user_situation_id\":15,\"login\":15,\"name\":15,\"password\":15,\"email\":15,\"email_verified_at\":15,\"last_access\":15}}}', 0, '2019-04-24 17:16:04', '2019-04-24 17:16:04', '2019-04-24 17:46:04');
 INSERT INTO `oauth_access_tokens` VALUES ('c92f7c110510f7094f2619a80e4045ae7c8d517fb26795bf00d93a55e5ac23b79151318723dc7ae0', 3, NULL, 1, 'Token pessoal 3', '[]', 0, '2019-04-15 22:08:47', '2019-04-15 22:08:47', '2019-04-15 22:38:47');
@@ -155,6 +171,7 @@ INSERT INTO `oauth_access_tokens` VALUES ('cfa87197ba7b25bfab9fe6c342e286e1299e3
 INSERT INTO `oauth_access_tokens` VALUES ('d82a1cccc4b4ef9de1d2bef1ad4e505135b3c1e73a2bf2da7fa721bb760437242196c42393573694', 3, NULL, 1, 'Token pessoal 3', '[]', 0, '2019-04-15 19:03:20', '2019-04-15 19:03:20', '2019-04-15 19:33:20');
 INSERT INTO `oauth_access_tokens` VALUES ('d9a5dcccc42b453e5559f6309c16f8614fd22a466f97b8eb3d33358a3b3132da20cc44ea0bc46d68', 3, 1, 1, 'Token pessoal 3', '{\"permissions\\/all\":{\"actions\":{\"_show\":15}},\"users\":{\"actions\":{\"user_type_id\":15,\"user_situation_id\":15,\"login\":15,\"name\":15,\"password\":15,\"email\":15,\"email_verified_at\":15,\"last_access\":15}},\"profiles\":{\"actions\":{\"noun\":15,\"description\":15}},\"permissions\":{\"actions\":{\"profile_id\":15,\"permission_id\":15,\"priority\":15,\"cpath\":15}},\"actions\":{\"actions\":{\"permission_id\":15,\"noun\":15,\"code\":15}}}', 0, '2019-05-03 20:02:53', '2019-05-03 20:02:53', '2019-05-03 20:32:53');
 INSERT INTO `oauth_access_tokens` VALUES ('dde24572669021e10a671403e14236b080db9984f1e27ce8438cbdacf5fa34ef11047e907551e612', 3, NULL, 1, 'Token pessoal 3', '[]', 0, '2019-04-15 21:50:41', '2019-04-15 21:50:41', '2019-04-15 22:20:41');
+INSERT INTO `oauth_access_tokens` VALUES ('e08f0cdf5fb5ff368d7d4d50453b88c050adae09e91f45c8fadd3bb44aff4189de1e17de735f79ec', 3, 1, 1, 'Token pessoal 3', '{\"users\":{\"actions\":{\"login\":7,\"name\":7,\"email\":7,\"user_situation_id\":7,\"email_verified_at\":1,\"password\":7,\"user_type_id\":7,\"last_access\":1}},\"profiles\":{\"actions\":{\"noun\":7,\"description\":7}},\"actions\":{\"actions\":{\"permission_id\":15,\"noun\":7,\"code\":7}},\"permissions\\/all\":{\"actions\":{\"_show\":1}},\"permissions\":{\"actions\":{\"permission_id\":7,\"profile_id\":15,\"priority\":7,\"cpath\":7}}}', 0, '2019-05-07 21:50:36', '2019-05-07 21:50:36', '2019-05-07 22:20:36');
 INSERT INTO `oauth_access_tokens` VALUES ('e1f605d6e582a63f310f3c7892843b2d49dfdf139f27b62c99d0bd9a8de72e81c36a63f446a78a97', 3, NULL, 1, 'Token pessoal 3', '[]', 0, '2019-04-24 14:10:14', '2019-04-24 14:10:14', '2019-04-24 14:40:14');
 INSERT INTO `oauth_access_tokens` VALUES ('e25592bf2888f9ffeed9678a6abdbfe71c22ed30ceace0d84a3b6652567591f326579fc0ffe5115f', 3, NULL, 1, 'Token pessoal 3', '[]', 0, '2019-04-17 16:47:30', '2019-04-17 16:47:30', '2019-04-17 17:17:30');
 INSERT INTO `oauth_access_tokens` VALUES ('e2b4ed8f8270ab4ecf190118d50eaa2f9f6033510c52675bce1784e6c70704dc3f98a2861c33ee09', 3, NULL, 1, 'Token pessoal 3', '[]', 0, '2019-04-16 14:21:09', '2019-04-16 14:21:09', '2019-04-16 14:51:09');
@@ -274,13 +291,17 @@ CREATE TABLE `permissions`  (
   INDEX `permission_id_permission`(`permission_id`) USING BTREE,
   INDEX `profile_id_permission`(`profile_id`) USING BTREE,
   CONSTRAINT `permission_fk_permission` FOREIGN KEY (`permission_id`) REFERENCES `permissions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE = InnoDB AUTO_INCREMENT = 3 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'Contém as permissões a serem vinculadas aos perfis' ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 20 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'Contém as permissões a serem vinculadas aos perfis' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Records of permissions
 -- ----------------------------
 INSERT INTO `permissions` VALUES (1, 1, NULL, 1, 'users', NULL, NULL, '2019-04-30 16:24:38');
 INSERT INTO `permissions` VALUES (2, 1, NULL, 2, 'profiles', NULL, NULL, '2019-04-30 16:25:02');
+INSERT INTO `permissions` VALUES (6, 1, NULL, 1, 'actions', '2019-05-07 19:02:54', NULL, '2019-05-07 19:02:54');
+INSERT INTO `permissions` VALUES (7, 1, NULL, 1, 'permissions/all', '2019-05-07 19:05:07', NULL, '2019-05-07 19:05:07');
+INSERT INTO `permissions` VALUES (8, 1, NULL, 1, 'permissions', '2019-05-07 21:09:02', NULL, '2019-05-07 21:09:02');
+INSERT INTO `permissions` VALUES (12, 2, NULL, 1, 'users', '2019-05-07 21:11:01', NULL, '2019-05-07 21:11:01');
 
 -- ----------------------------
 -- Table structure for profiles
@@ -309,7 +330,7 @@ INSERT INTO `profiles` VALUES (3, 'teste delete', 'sf w fgdsda sdg fgsdg f gf', 
 -- ----------------------------
 DROP TABLE IF EXISTS `user_profile_actions`;
 CREATE TABLE `user_profile_actions`  (
-  `id` bigint(20) NOT NULL COMMENT 'Cháve primária',
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'Cháve primária',
   `user_profile_id` bigint(20) NOT NULL COMMENT 'Chave estrangeira para o vinculo entre usuário e perfil (acesso)',
   `action_id` bigint(20) NOT NULL COMMENT 'Chave estrangeira para a ação',
   `code` int(2) NOT NULL COMMENT 'Código de permissão do atributo',
@@ -322,7 +343,7 @@ CREATE TABLE `user_profile_actions`  (
   INDEX `user_profile_id_user_profile_action`(`user_profile_id`) USING BTREE,
   CONSTRAINT `user_profile_action_fk_action` FOREIGN KEY (`action_id`) REFERENCES `actions` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `user_profile_action_fk_user_profile` FOREIGN KEY (`user_profile_id`) REFERENCES `user_profiles` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'Relacionar as ações com o acesso, limitado ao maximo definido pelo perfil ao qual está vinculado' ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'Relacionar as ações com o acesso, limitado ao maximo definido pelo perfil ao qual está vinculado' ROW_FORMAT = Compact;
 
 -- ----------------------------
 -- Table structure for user_profiles
@@ -342,6 +363,11 @@ CREATE TABLE `user_profiles`  (
   CONSTRAINT `user_profile_fk_profile` FOREIGN KEY (`profile_id`) REFERENCES `profiles` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `user_profile_fk_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = 'Contém o vínculo entre o usuário e o perfil' ROW_FORMAT = Compact;
+
+-- ----------------------------
+-- Records of user_profiles
+-- ----------------------------
+INSERT INTO `user_profiles` VALUES (1, 3, 1, NULL, NULL, '2019-05-07 16:17:48');
 
 -- ----------------------------
 -- Table structure for user_situations
