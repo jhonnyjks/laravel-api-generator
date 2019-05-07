@@ -47,10 +47,13 @@ class User extends Authenticatable
             'message' => 'Acesso não autorizado.'
         ];;
 
-        $userProfileActions = $userProfile->userProfileActions->pluck('action_id', 'action_id')->toArray();
-
+        $userPActions = $userProfile->userProfileActions->pluck('code', 'action_id')->toArray();
         foreach ($permissions as $permission) {
-            $actions = $permission->actions()->whereIn('id', $userProfileActions)->pluck('code', 'noun')->toArray();
+            $actions = [];
+            foreach($permission->actions()->get() as $action) {
+                $actions[$action->noun] = isset($userPActions[$action->id]) ? $userPActions[$action->id] : $action->code;
+            }
+
             if(!empty($actions)) {
                 $path = $permission->cpath;
                 $parentPermission = $permission;
