@@ -1,12 +1,16 @@
 # laravel5.7-generator
 Pacote atualizado de frameworks PHP para desenvolvimento ágil de APIs e/ou sistemas completos. Possibilita desenvolver, de forma ágil, sistemas ou serviços com código bem estruturado. Óbvio, o gerador é só um auxiliar, as especificidades ficam por conta do programador.
 ## Instruções
-- **1** Preparar o sistema para rodar o Laravel, conforme documentação: https://laravel.com/docs/5.7/installation
-- **2** Não criar projeto laravel, apenas clonar este repositório
-- **3** Instalar o projeto e baixar dependências com o comando "composer install"
-- **4** Configurar o Laravel no .env conforme documentação
-- **5** Utilizar os comandos do InfyOm: http://labs.infyom.com/laravelgenerator/docs/5.6/getting-started
+- **1** Instalar o Composer: https://getcomposer.org
+- **2** Clonar este repositório, depois entrar no diretório que foi criado na clonagem.
+- **3** Baixar dependências com o comando "composer install" dentro do diretório raiz do projeto.
+- **4** Copiar o arquivo '.env.example' para '.env', configurar o arquivo '.env' (Banco de Dados, URL_BASE).
+- **5** Criar a chave única de criptografia, com o comando "php artisan key:generate".
+- **6** Executar o arquivo db.sql na base de dados escolhida para o projeto. Ele contém a estrutura básica do gerenciamento de usuários, permissões e tokens.
+- **7** Executar o comando "php artisan passport:install" para gerar as chaves do passport, utilizada na criptografia dos tokens JWT.
+- **8** Por fim, executar o comando "php artisan serve" na raíz do projeto, e ele estará rodando.
 ## Referências 
+Utilizar os comandos do InfyOm: http://labs.infyom.com/laravelgenerator/docs/5.6/getting-started
 - **Laravel 5.7:** https://laravel.com/docs/5.7
 - **InfyOm Generator:** http://labs.infyom.com/laravelgenerator/
 - **Swaggervel:** https://github.com/appointer/swaggervel
