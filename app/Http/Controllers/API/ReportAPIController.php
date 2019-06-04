@@ -73,7 +73,7 @@ class ReportAPIController extends AppBaseController
      * @return Response
      *
      * @SWG\Get(
-     *      path="/reports/enroleds",
+     *      path="/reports/mensalidades/geradas",
      *      summary="Retorna uma lista de alunos matriculados por ano.",
      *      tags={"Enroled"},
      *      description="Retorna uma lista de alunos matriculados por ano.",
@@ -114,7 +114,7 @@ class ReportAPIController extends AppBaseController
      * @return Response
      *
      * @SWG\Get(
-     *      path="/reports/enroleds",
+     *      path="/reports/mensalidades/pagas",
      *      summary="Retorna uma lista de alunos matriculados por ano.",
      *      tags={"Enroled"},
      *      description="Retorna uma lista de alunos matriculados por ano.",
@@ -155,7 +155,7 @@ class ReportAPIController extends AppBaseController
      * @return Response
      *
      * @SWG\Get(
-     *      path="/reports/enroleds",
+     *      path="/reports/payments",
      *      summary="Retorna uma lista de alunos matriculados por ano.",
      *      tags={"Enroled"},
      *      description="Retorna uma lista de alunos matriculados por ano.",
@@ -199,7 +199,7 @@ class ReportAPIController extends AppBaseController
      * @return Response
      *
      * @SWG\Get(
-     *      path="/reports/enroleds",
+     *      path="/reports/enrolleds/especials/without-discipline",
      *      summary="Retorna uma lista de alunos matriculados por ano.",
      *      tags={"Enroled"},
      *      description="Retorna uma lista de alunos matriculados por ano.",
@@ -240,7 +240,7 @@ class ReportAPIController extends AppBaseController
      * @return Response
      *
      * @SWG\Get(
-     *      path="/reports/enroleds",
+     *      path="/reports/enrolleds/without-discipline",
      *      summary="Retorna uma lista de alunos matriculados por ano.",
      *      tags={"Enroled"},
      *      description="Retorna uma lista de alunos matriculados por ano.",
@@ -281,7 +281,7 @@ class ReportAPIController extends AppBaseController
      * @return Response
      *
      * @SWG\Get(
-     *      path="/reports/enroleds",
+     *      path="/reports/mensalidades/without-value",
      *      summary="Retorna uma lista de alunos matriculados por ano.",
      *      tags={"Enroled"},
      *      description="Retorna uma lista de alunos matriculados por ano.",
