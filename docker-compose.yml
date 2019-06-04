@@ -1,0 +1,9 @@
+version: '3.5'
+services:
+  app:
+    image: atmosmaciel/docker-php-sqlsrv:7.2-apache
+    container_name: financeiro-api
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "3002:80"
