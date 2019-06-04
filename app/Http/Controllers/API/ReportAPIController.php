@@ -282,7 +282,7 @@ class ReportAPIController extends AppBaseController
      *
      * @SWG\Get(
      *      path="/reports/mensalidades/without-value",
-     *      summary="Retorna uma lista de alunos matriculados por ano.",
+     *      summary="Retorna uma lista de alunos com parcela zerada.",
      *      tags={"Enroled"},
      *      description="Retorna uma lista de alunos matriculados por ano.",
      *      produces={"application/json"},
