@@ -45,7 +45,7 @@ class User extends Authenticatable
         if(empty($userProfile)) return [
             'success' => false,
             'message' => 'Acesso não autorizado.'
-        ];;
+        ];
 
         $userPActions = $userProfile->userProfileActions->pluck('code', 'action_id')->toArray();
         foreach ($permissions as $permission) {
@@ -76,7 +76,8 @@ class User extends Authenticatable
 
         return [
             'success' => true,
-            'message' => 'Perfil definido com sucesso!'
+            'message' => 'Perfil definido com sucesso!',
+            'scopes' => $scopes
         ];
 
     }
