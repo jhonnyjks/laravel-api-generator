@@ -9,9 +9,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Models\Permission;
 use App\Models\Profile;
 use App\Models\UserProfileAction;
+use Illuminate\Support\Facades\Route;
 
 class User extends Authenticatable
-{   
+{
     use HasApiTokens, Notifiable;
     /**
      * The attributes that are mass assignable.
@@ -19,8 +20,8 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-       'login', 'email', 'password', 'user_type_id', 'user_situation_id', 'person_id', 'name', 'last_acess'
-   ];
+        'login', 'email', 'password', 'user_type_id', 'user_situation_id', 'person_id', 'name', 'last_acess'
+    ];
 
     /**
      * The attributes that should be hidden for arrays.
@@ -31,36 +32,39 @@ class User extends Authenticatable
         'password', 'remember_token',
     ];
 
-    public function getProfile() {
+    public function getProfile()
+    {
         return Profile::find($this->token()->profile_id);
-    } 
+    }
 
     public function setProfile($profileId)
     {
         $token = $this->token();
-        $scopes = Array();
+        $scopes = array();
         $permissions = Permission::where(['profile_id' => $profileId])->get();
         $userProfile = $this->userProfiles()->where(['profile_id' => $profileId])->first();
 
-        if(empty($userProfile)) return [
+        if (empty($userProfile)) return [
             'success' => false,
             'message' => 'Acesso não autorizado.'
         ];
 
         $userPActions = $userProfile->userProfileActions->pluck('code', 'action_id')->toArray();
+        $routes = $this->getRouteModelArray();
+        // dd($routes);
         foreach ($permissions as $permission) {
             $actions = [];
-            foreach($permission->actions()->get() as $action) {
+            foreach ($permission->actions()->get() as $action) {
                 $actions[$action->noun] = isset($userPActions[$action->id]) ? $userPActions[$action->id] : $action->code;
             }
 
-            if(!empty($actions)) {
+            if (!empty($actions)) {
                 $path = $permission->cpath;
                 $parentPermission = $permission;
 
                 while (!empty($parentPermission->permission_id)) {
                     $parentPermission = $permission->permission;
-                    $path = $parentPermission->cpath.'/'.$path;                        
+                    $path = $parentPermission->cpath . '/' . $path;
                 }
 
                 $scopes[$path] = [
@@ -79,7 +83,31 @@ class User extends Authenticatable
             'message' => 'Perfil definido com sucesso!',
             'scopes' => $scopes
         ];
+    }
 
+    public static function getRouteModelArray()
+    {
+        $arr = [];
+
+        //Operações que iriam repetir a rota principal
+        $operations = [
+            'create', 'store', 'show', 'edit', 'update', 'destroy'
+        ];
+
+        foreach (Route::getRoutes()->getIterator() as $route) {
+            if ($route->getPrefix() == 'api' && !in_array(
+                substr($route->getName(), stripos($route->getName(), '.') + 1),
+                $operations
+            )) {
+                $arr[$route->uri] = '\\App\\Models\\' . substr(
+                    $route->getActionName(),
+                    stripos($route->getActionName(), '\API\\') + 5,
+                    stripos($route->getActionName(), 'APIController') - stripos($route->getActionName(), '\API\\') - 5
+                );
+            }
+        }
+
+        return $arr;
     }
 
     /**
