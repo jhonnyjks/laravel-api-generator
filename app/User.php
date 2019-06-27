@@ -51,15 +51,36 @@ class User extends Authenticatable
 
         $userPActions = $userProfile->userProfileActions->pluck('code', 'action_id')->toArray();
         $routes = $this->getRouteModelArray();
-        // dd($routes);
+
         foreach ($permissions as $permission) {
+
+            $path = $permission->cpath;
+            $model = null;
+            $metadata = null;
+            $rules = [];
+
+            if (isset($routes['api/' . $path]) && class_exists($routes['api/' . $path])) {
+                $model = $routes['api/' . $path];
+                $rules = $model::$rules;
+                $model = new $model;
+                $metadata = isset($model->metadata) ? $model->metadata : [];
+            } else {
+                $metadata = [];
+            }
+
             $actions = [];
             foreach ($permission->actions()->get() as $action) {
-                $actions[$action->noun] = isset($userPActions[$action->id]) ? $userPActions[$action->id] : $action->code;
+                $actions[$action->noun] = isset($userPActions[$action->id])
+                    ? $userPActions[$action->id] : $action->code;
+                if (!empty($model)) {
+                    if (empty($metadata['rules'])) $metadata['rules'] = [];
+
+                    $metadata['rules'][$action->noun] = !empty($rules[$action->noun])
+                        ? $rules[$action->noun] : '';
+                }
             }
 
             if (!empty($actions)) {
-                $path = $permission->cpath;
                 $parentPermission = $permission;
 
                 while (!empty($parentPermission->permission_id)) {
@@ -68,7 +89,8 @@ class User extends Authenticatable
                 }
 
                 $scopes[$path] = [
-                    'actions' => $actions
+                    'actions' => $actions,
+                    'metadata' => $metadata
                 ];
             }
         }
@@ -85,6 +107,10 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Retorna uma array onde os índices são rotas e o valor é o caminho da classe
+     * @return Array
+     */
     public static function getRouteModelArray()
     {
         $arr = [];

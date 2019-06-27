@@ -211,8 +211,7 @@ class AuthAPIController extends Controller
         $token = auth()->user()->token();
         $scopes = array();
         $permissions = $response->getData()->data;
-        $userProfile = auth()->user()->userProfiles()->first();
-
+        
         foreach ($permissions as $permission) {
             $actions = array_flip($permission->attributes);
 
