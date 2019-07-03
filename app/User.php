@@ -56,16 +56,14 @@ class User extends Authenticatable
 
             $path = $permission->cpath;
             $model = null;
-            $metadata = null;
+            $metadata = [];
             $rules = [];
 
             if (isset($routes['api/' . $path]) && class_exists($routes['api/' . $path])) {
                 $model = $routes['api/' . $path];
                 $rules = $model::$rules;
                 $model = new $model;
-                $metadata = isset($model->metadata) ? $model->metadata : [];
-            } else {
-                $metadata = [];
+
             }
 
             $actions = [];
@@ -90,7 +88,7 @@ class User extends Authenticatable
 
                 $scopes[$path] = [
                     'actions' => $actions,
-                    'metadata' => $metadata
+                    'rules' => !empty($metadata['rules']) ? $metadata['rules'] : []
                 ];
             }
         }

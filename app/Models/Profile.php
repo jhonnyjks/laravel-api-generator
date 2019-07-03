@@ -27,10 +27,6 @@ class Profile extends Model
 
     public $table = 'profiles';
     
-    public $metadata = [
-        'title' => 'Perfis'
-    ];
-
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
 

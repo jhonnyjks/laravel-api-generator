@@ -28,15 +28,6 @@ class Permission extends Model
 
     public $table = 'permissions';
 
-    public $metadata = [
-        'title' => 'Permissões',
-        'children' => [
-            'all' => [
-                'title' => 'Todas'
-            ]
-        ]
-    ];
-
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
 
