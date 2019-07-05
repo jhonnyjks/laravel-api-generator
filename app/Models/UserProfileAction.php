@@ -37,6 +37,10 @@ class UserProfileAction extends Model
 
     public $table = 'user_profile_actions';
     
+    public $metadata = [
+        'title' => 'Usuario-Perfis-Ações'
+    ];
+
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
 

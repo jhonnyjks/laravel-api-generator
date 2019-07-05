@@ -27,7 +27,11 @@ class Action extends Model
     use SoftDeletes;
 
     public $table = 'actions';
-    
+
+    public $metadata = [
+        'title' => 'Ações'
+    ];
+
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
 
