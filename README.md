@@ -1,5 +1,5 @@
 # laravel5.7-generator
-Pacote atualizado de frameworks PHP para desenvolvimento ágil de APIs e/ou sistemas completos. Possibilita desenvolver, de forma ágil, sistemas ou serviços com código bem estruturado. Óbvio, o gerador é só um auxiliar, as especificidades ficam por conta do programador.
+Projeto base para desenvolvimento ágil de APIs em PHP com Laravel, e código bem estruturado. O gerador é só um auxiliar, as especificidades ficam por conta do programador.
 ## Instruções
 - **1** Instalar o Composer: https://getcomposer.org
 - **2** Clonar este repositório, depois entrar no diretório que foi criado na clonagem.
@@ -10,7 +10,7 @@ Pacote atualizado de frameworks PHP para desenvolvimento ágil de APIs e/ou sist
 - **7** Executar o comando "php artisan passport:install" para gerar as chaves do passport, utilizada na criptografia dos tokens JWT.
 - **8** Por fim, executar o comando "php artisan serve" na raíz do projeto, e ele estará rodando.
 ## Referências 
-Utilizar os comandos do InfyOm: http://labs.infyom.com/laravelgenerator/docs/5.6/getting-started
+Utilizar os comandos do InfyOm para gerar CRUDs: http://labs.infyom.com/laravelgenerator/docs/5.6/getting-started
 - **Laravel 5.7:** https://laravel.com/docs/5.7
 - **InfyOm Generator:** http://labs.infyom.com/laravelgenerator/
 - **Swaggervel:** https://github.com/appointer/swaggervel
