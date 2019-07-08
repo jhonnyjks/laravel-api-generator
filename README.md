@@ -9,6 +9,7 @@ Projeto base para desenvolvimento ágil de APIs em PHP com Laravel, e código be
 - **6** Executar o arquivo db.sql na base de dados escolhida para o projeto. Ele contém a estrutura básica do gerenciamento de usuários, permissões e tokens.
 - **7** Executar o comando "php artisan passport:install" para gerar as chaves do passport, utilizada na criptografia dos tokens JWT.
 - **8** Por fim, executar o comando "php artisan serve" na raíz do projeto, e ele estará rodando.
+- **9** [opcional] Preparar o Client-Side React, já integrado a este API: https://github.com/jhonnyjks/react-restful-client
 ## Referências 
 Utilizar os comandos do InfyOm para gerar CRUDs: http://labs.infyom.com/laravelgenerator/docs/5.6/getting-started
 - **Laravel 5.7:** https://laravel.com/docs/5.7
