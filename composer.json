@@ -13,10 +13,10 @@
         "barryvdh/laravel-cors": "^0.11.3",
         "doctrine/dbal": "~2.3",
         "fideloper/proxy": "^4.0",
-        "infyomlabs/adminlte-templates": "5.7.x-dev",
-        "infyomlabs/laravel-generator": "5.7.x-dev",
+        "infyomlabs/adminlte-templates": "5.8.x-dev",
+        "infyomlabs/laravel-generator": "5.8.x-dev",
         "infyomlabs/swagger-generator": "dev-master",
-        "laravel/framework": "5.7.*",
+        "laravel/framework": "5.8.*",
         "laravel/passport": "^7.0",
         "laravel/tinker": "^1.0",
         "laravelcollective/html": "^5.7.0"
