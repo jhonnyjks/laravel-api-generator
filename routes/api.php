@@ -17,7 +17,7 @@ Route::group([
 	'prefix' => 'auth'
 ], function () {
 	Route::post('signup', 'AuthAPIController@signup');
-	
+
 	Route::post('login', [
 		'as' => 'api.auth.login',
 		'uses' => 'AuthAPIController@login'
@@ -26,6 +26,11 @@ Route::group([
 	Route::post('change-password', [
 		'as' => 'api.auth.changePassword',
 		'uses' => 'AuthAPIController@changePassword'
+	]);
+
+	Route::post('change-user-data', [
+		'as' => 'api.auth.changeUserData',
+		'uses' => 'AuthAPIController@changeUserData'
 	]);
 
 	Route::get('validate', [
@@ -55,3 +60,5 @@ Route::resource('users', 'UserAPIController');
 Route::resource('profiles', 'ProfileAPIController');
 
 Route::resource('permissions', 'PermissionAPIController');
+
+Route::resource('actions', 'ActionAPIController');

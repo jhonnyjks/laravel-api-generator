@@ -14,7 +14,8 @@ class Authenticate extends Middleware
         'auth/permissions/use-all',
         'auth/user',
         'auth/validate',
-        'auth/change-password'
+        'auth/change-password',
+        'auth/change-user-data'
     ];
 
     private static $isRouteExcept = false;
