@@ -17,14 +17,22 @@ Route::group([
 	'prefix' => 'auth'
 ], function () {
 	Route::post('signup', 'AuthAPIController@signup');
+	
 	Route::post('login', [
 		'as' => 'api.auth.login',
 		'uses' => 'AuthAPIController@login'
 	]);
+
+	Route::post('change-password', [
+		'as' => 'api.auth.changePassword',
+		'uses' => 'AuthAPIController@changePassword'
+	]);
+
 	Route::get('validate', [
 		'as' => 'api.auth.validate',
 		'uses' => 'AuthAPIController@validateToken'
 	]);
+
 	Route::get('logout', 'AuthAPIController@logout');
 	Route::get('user', 'AuthAPIController@user');
 	Route::get('define_profile/{id}', 'AuthAPIController@defineProfile');

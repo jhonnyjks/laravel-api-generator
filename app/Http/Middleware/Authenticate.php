@@ -13,7 +13,8 @@ class Authenticate extends Middleware
         'auth/define_profile',
         'auth/permissions/use-all',
         'auth/user',
-        'auth/validate'
+        'auth/validate',
+        'auth/change-password'
     ];
 
     private static $isRouteExcept = false;

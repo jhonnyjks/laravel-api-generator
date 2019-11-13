@@ -9,6 +9,7 @@ use App\User;
 use App\Models\Profile;
 use App\Models\UserProfile;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Hash;
 
 class AuthAPIController extends Controller
 {
@@ -44,6 +45,35 @@ class AuthAPIController extends Controller
         $user->save();
 
         return $this->login($request);
+    }
+
+    /**
+     * Login user and create token
+     *
+     * @param  [string] password
+     * @return [string] new_password
+     */
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'password' => 'required|string|between:6,15',
+            'new_password' => 'required|string|between:6,15',
+        ]);
+        
+        $user = $request->user();
+        $credentials = ['login' => !empty($user->login) ? $user->login : $user->email , 'password' => $request->password];
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'message' => 'Senha atual incorreta.'
+            ], 401);
+        }
+
+        $user->password = bcrypt($request->new_password);
+        $user->save();
+
+        return response()->json([
+            'message' => 'Senha alterada com sucesso!'
+        ]);
     }
 
     /**
