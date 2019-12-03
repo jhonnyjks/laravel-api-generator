@@ -13,7 +13,7 @@
     },
     {
         "name": "name",
-        "dbType": "varchar(90)",
+        "dbType": "varchar(200)",
         "htmlType": null,
         "validations": "",
         "searchable": true,
@@ -97,7 +97,7 @@
     },
     {
         "name": "identity_agency",
-        "dbType": "varchar(16)",
+        "dbType": "varchar(15)",
         "htmlType": null,
         "validations": "",
         "searchable": true,
