@@ -62,6 +62,3 @@ Route::resource('profiles', 'ProfileAPIController');
 Route::resource('permissions', 'PermissionAPIController');
 
 Route::resource('actions', 'ActionAPIController');
-
-
-Route::resource('taxpayers', 'TaxpayersAPIController');
