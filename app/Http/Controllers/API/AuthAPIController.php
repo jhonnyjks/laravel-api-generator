@@ -1,7 +1,7 @@
 <?php
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\AppBaseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -9,8 +9,9 @@ use App\User;
 use App\Models\Profile;
 use App\Models\UserProfile;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Hash;
 
-class AuthAPIController extends Controller
+class AuthAPIController extends AppBaseController
 {
     //Campo usado com a senha na autenticação
     protected $username = 'login';
@@ -44,6 +45,58 @@ class AuthAPIController extends Controller
         $user->save();
 
         return $this->login($request);
+    }
+
+    /**
+     * Altera a senha do usuário autenticado
+     *
+     * @param  [string] password
+     * @return [string] new_password
+     */
+    public function changePassword(Request $request)
+    {
+        $request->validate([
+            'password' => 'required|string|between:6,15',
+            'new_password' => 'required|string|between:6,15',
+        ]);
+
+        $user = $request->user();
+        $credentials = ['login' => !empty($user->login) ? $user->login : $user->email , 'password' => $request->password];
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'message' => 'Senha atual incorreta.'
+            ], 401);
+        }
+
+        $user->password = bcrypt($request->new_password);
+        $user->save();
+
+        return response()->json([
+            'message' => 'Senha alterada com sucesso!'
+        ]);
+    }
+
+    /**
+     * Altera os dados do usuário autenticado
+     *
+     * @param  [string] password
+     * @return [string] new_password
+     */
+    public function changeUserData(Request $request)
+    {
+        $request->validate([
+            'login' => 'required_without:email|between:3,20|unique:users,login,{id}',
+            'email' => 'required_without:login|email|unique:users,email,{id}',
+            'name' => 'required|string|between:6,150',
+            'celphone' => 'integer|between:10000000000,99999999999|unique:users,celphone,{id}'
+        ]);
+        $user = $request->user();
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->login = $request->login;
+        $user->celphone = $request->celphone;
+        $user->save();
+        return $this->sendResponse($user->toArray(), 'Usuário alterado com sucesso!');
     }
 
     /**

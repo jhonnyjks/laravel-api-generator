@@ -24,6 +24,6 @@ class UpdateActionAPIRequest extends APIRequest
      */
     public function rules()
     {
-        return Action::$rules;
+        return str_replace('{id}', $this->action, Action::$rules);
     }
 }

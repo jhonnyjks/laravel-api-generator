@@ -24,6 +24,6 @@ class UpdatePermissionAPIRequest extends APIRequest
      */
     public function rules()
     {
-        return Permission::$rules;
+        return str_replace('{id}', $this->permission, Permission::$rules);
     }
 }
