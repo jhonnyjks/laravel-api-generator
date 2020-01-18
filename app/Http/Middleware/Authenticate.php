@@ -194,11 +194,24 @@ class Authenticate extends Middleware
                 if (strpos($relation[0], '.') > -1) $relation[0] = explode('.', $relation[0])[1];
 
                 if (!in_array($relation[0], static::$except) && empty($scopes[$relation[0]])) {
-                    throw new AuthenticationException(
-                        "Se o caminho '$relation[0]' existe, a sessão não tem permissão de acesso.",
-                        [],
-                        $this->redirectTo($request)
-                    );
+                  if(!class_exists($relation[0] = '\\App\\Models\\'.ucfirst($relation[0]))) {
+
+                        throw new AuthenticationException(
+                            "Se o caminho '$relation[0]' existe, a sessão não tem permissão de acesso.",
+                            [],
+                            $this->redirectTo($request)
+                        );
+                    } else {
+                        $relation[0] = (new $relation[0])->table;
+
+                        if (!in_array($relation[0], static::$except) && empty($scopes[$relation[0]])) {
+                            throw new AuthenticationException(
+                                "Se o caminho '$relation[0]' existe, a sessão não tem permissão de acesso.",
+                                [],
+                                $this->redirectTo($request)
+                            );
+                        }
+                    }
                 }
 
                 //Verifica em todos os atributos da rota e seleciona os atributos que se
