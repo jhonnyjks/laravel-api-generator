@@ -173,7 +173,7 @@ class Authenticate extends Middleware
             );
         }
     }
-
+    
     public static function isRouteExcept()
     {
         return static::$isRouteExcept;
