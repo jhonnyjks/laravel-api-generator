@@ -276,6 +276,6 @@ class GeneralStatusAPIController extends AppBaseController
 
         $generalStatus->delete();
 
-        return $this->sendSuccess('General Status deleted successfully');
+        return $this->sendResponse([],'General Status deleted successfully');
     }
 }

@@ -277,6 +277,6 @@ class UserProfileAPIController extends AppBaseController
 
         $userProfile->delete();
 
-        return $this->sendSuccess('User Profile deleted successfully');
+        return $this->sendResponse([],'User Profile deleted successfully');
     }
 }
