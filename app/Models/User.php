@@ -49,8 +49,7 @@ class User extends Model
      * @var array
      */
     public $fillable = [
-        'user_type_id',
-        'user_situation_id',
+        'general_status_id',
         'login',
         'name',
         'password',
@@ -79,8 +78,7 @@ class User extends Model
         'name' => 'string',
         'password' => 'string',
         'email' => 'string',
-        'user_type_id' => 'integer',
-        'user_situation_id' => 'integer',
+        'general_status_id' => 'integer',
         'celphone' => 'integer'
     ];
 
@@ -93,26 +91,17 @@ class User extends Model
         'login' => 'required_without:email|between:3,20|unique:users,login,{id}',
         'email' => 'required_without:login|email|unique:users,email,{id}',
         'password' => 'required|string|between:6,15',
-        'name' => 'required|string|between:6,150',
-        'user_type_id' => 'integer|exists:user_types,id',
-        'user_situation_id' => 'integer|exists:user_situations,id',
+        'name' => 'required|string|between:6,150',  
+        'general_status_id' => 'integer|exists:general_statuses,id',
         'celphone' => 'integer|between:10000000000,99999999999|unique:users,celphone,{id}'
     ];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      **/
-    public function userSituation()
+    public function generalStatus()
     {
-        return $this->belongsTo(\App\Models\UserSituation::class);
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     **/
-    public function userType()
-    {
-        return $this->belongsTo(\App\Models\UserType::class);
+        return $this->belongsTo(\App\Models\GeneralStatus::class);
     }
 
     /**

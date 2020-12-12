@@ -62,3 +62,8 @@ Route::resource('profiles', 'ProfileAPIController');
 Route::resource('permissions', 'PermissionAPIController');
 
 Route::resource('actions', 'ActionAPIController');
+
+
+Route::resource('general_statuses', 'GeneralStatusAPIController');
+
+Route::resource('user_profiles', 'UserProfileAPIController');

@@ -20,7 +20,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'login', 'email', 'password', 'user_type_id', 'user_situation_id', 'person_id', 'name', 'last_acess'
+        'login', 'email', 'password', 'general_Status_id', 'name', 'last_acess'
     ];
 
     /**
@@ -88,7 +88,9 @@ class User extends Authenticatable
 
                 $scopes[$path] = [
                     'actions' => $actions,
-                    'rules' => !empty($metadata['rules']) ? $metadata['rules'] : []
+                    'rules' => !empty($metadata['rules']) ? $metadata['rules'] : [],
+                    'entity' => !empty($model) ? 
+                    substr(get_class($model), strrpos(get_class($model), '\\')+1, strlen(get_class($model)) - strrpos(get_class($model), '\\')) : ''
                 ];
             }
         }
@@ -141,6 +143,7 @@ class User extends Authenticatable
     {
         return $this->hasMany(\App\Models\UserProfile::class);
     }
+
 }
 
 /* Estrutura da sessão

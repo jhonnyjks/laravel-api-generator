@@ -6,45 +6,59 @@ use App\Models\BaseModel as Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Class UserProfile
- * @package App\Models
- * @version February 7, 2019, 7:18 pm UTC
- *
- * @property \App\Models\User user
- * @property \App\Models\Profile profile
- * @property \Illuminate\Database\Eloquent\Collection buildCorrections
- * @property \Illuminate\Database\Eloquent\Collection personActivities
- * @property \Illuminate\Database\Eloquent\Collection personalDetails
- * @property \Illuminate\Database\Eloquent\Collection owners
- * @property \Illuminate\Database\Eloquent\Collection profileCities
- * @property \Illuminate\Database\Eloquent\Collection streets
- * @property \Illuminate\Database\Eloquent\Collection streetBlocks
- * @property \Illuminate\Database\Eloquent\Collection tributeCovenants
- * @property \Illuminate\Database\Eloquent\Collection serviceActivities
- * @property \Illuminate\Database\Eloquent\Collection UserProfileAction
- * @property \Illuminate\Database\Eloquent\Collection persons
- * @property \Illuminate\Database\Eloquent\Collection activityAddresses
- * @property \Illuminate\Database\Eloquent\Collection activityTaxes
- * @property \Illuminate\Database\Eloquent\Collection beneficiaries
- * @property \Illuminate\Database\Eloquent\Collection permissions
- * @property bigInteger user_id
- * @property bigInteger profile_id
+ * @SWG\Definition(
+ *      definition="UserProfile",
+ *      required={""},
+ *      @SWG\Property(
+ *          property="id",
+ *          description="Chave primária",
+ *          type="integer",
+ *          format="int32"
+ *      ),
+ *      @SWG\Property(
+ *          property="user_id",
+ *          description="Chave estrangeira para o usuário",
+ *          type="integer",
+ *          format="int32"
+ *      ),
+ *      @SWG\Property(
+ *          property="profile_id",
+ *          description="Chave estrangeira para o perfil",
+ *          type="integer",
+ *          format="int32"
+ *      ),
+ *      @SWG\Property(
+ *          property="updated_at",
+ *          description="Data da última alteração",
+ *          type="string",
+ *          format="date-time"
+ *      ),
+ *      @SWG\Property(
+ *          property="deleted_at",
+ *          description="Data de deleção",
+ *          type="string",
+ *          format="date-time"
+ *      ),
+ *      @SWG\Property(
+ *          property="created_at",
+ *          description="Data de criação",
+ *          type="string",
+ *          format="date-time"
+ *      )
+ * )
  */
 class UserProfile extends Model
 {
     use SoftDeletes;
 
     public $table = 'user_profiles';
-
-    public $metadata = [
-        'title' => 'Usuario-Perfis'
-    ];
     
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
 
 
     protected $dates = ['deleted_at'];
+
 
 
     public $fillable = [
@@ -58,7 +72,9 @@ class UserProfile extends Model
      * @var array
      */
     protected $casts = [
-        
+        'id' => 'integer',
+        'user_id' => 'integer',
+        'profile_id' => 'integer'
     ];
 
     /**
@@ -67,23 +83,24 @@ class UserProfile extends Model
      * @var array
      */
     public static $rules = [
-        
+        'user_id' => 'required',
+        'profile_id' => 'required'
     ];
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     **/
-    public function user()
-    {
-        return $this->belongsTo(\App\Models\User::class);
-    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      **/
     public function profile()
     {
-        return $this->belongsTo(\App\Models\Profile::class);
+        return $this->belongsTo(\App\Models\Profile::class, 'profile_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     **/
+    public function user()
+    {
+        return $this->belongsTo(\App\Models\User::class, 'user_id');
     }
 
     /**
@@ -91,6 +108,6 @@ class UserProfile extends Model
      **/
     public function userProfileActions()
     {
-        return $this->hasMany(\App\Models\UserProfileAction::class);
+        return $this->hasMany(\App\Models\UserProfileAction::class, 'user_profile_id');
     }
 }

@@ -28,6 +28,7 @@ class Authenticate extends Middleware
 
     //URI formatada para a validação via $scopes
     public static $routeUri = null;
+    public static $routesFromQueryStr = [];
 
     // Mapeando os métodos às permissões (Action->code)
     private $methodToPermission = [
@@ -190,6 +191,9 @@ class Authenticate extends Middleware
     {
         if (!empty($request->with)) {
             foreach (explode(';', $request->with) as $relation) {
+                
+                if(trim($relation) == '') continue;
+
                 $relation = explode(':', $relation);
                 if (strpos($relation[0], '.') > -1) $relation[0] = explode('.', $relation[0])[1];
 
@@ -203,7 +207,7 @@ class Authenticate extends Middleware
                             $this->redirectTo($request)
                         );
                     } else {
-                        $classPath = (new $classPath)->table;
+                        static::$routesFromQueryStr[] = $classPath = (new $classPath)->table;
                         
                         if (!in_array($classPath, static::$except) && empty($scopes[$classPath])) {
                             throw new AuthenticationException(
