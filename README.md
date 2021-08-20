@@ -1,4 +1,4 @@
-# laravel5.7-generator
+# laravel6-generator
 Projeto base para desenvolvimento ágil de APIs em PHP com Laravel, e código bem estruturado. O gerador é só um auxiliar, as especificidades ficam por conta do programador.
 ## Instruções
 - **1** Instalar o Composer: https://getcomposer.org
@@ -12,7 +12,7 @@ Projeto base para desenvolvimento ágil de APIs em PHP com Laravel, e código be
 - **9** [opcional] Preparar o Client-Side React, já integrado a este API: https://github.com/jhonnyjks/react-restful-client
 ## Referências 
 Utilizar os comandos do InfyOm para gerar CRUDs: http://labs.infyom.com/laravelgenerator/docs/5.6/getting-started
-- **Laravel 5.7:** https://laravel.com/docs/5.7
+- **Laravel 5.7:** https://laravel.com/docs/6
 - **InfyOm Generator:** http://labs.infyom.com/laravelgenerator/
 - **Swaggervel:** https://github.com/appointer/swaggervel
 - **JWT OAuth2 Basic:** https://medium.com/modulr/create-api-authentication-with-passport-of-laravel-5-6-1dc2d400a7f
