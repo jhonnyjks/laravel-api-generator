@@ -1,6 +1,7 @@
 # laravel6-generator
+
 Projeto base para desenvolvimento ágil de APIs em PHP com Laravel, e código bem estruturado. O gerador é só um auxiliar, as especificidades ficam por conta do programador.
-## Instruções
+## Instruções: https://www.youtube.com/watch?v=Oypvn1gvXRI
 - **1** Instalar o Composer: https://getcomposer.org
 - **2** Clonar este repositório, depois entrar no diretório que foi criado na clonagem.
 - **3** Baixar dependências com o comando "composer install" dentro do diretório raiz do projeto.
