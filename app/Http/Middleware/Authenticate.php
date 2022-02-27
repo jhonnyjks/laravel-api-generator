@@ -26,6 +26,7 @@ class Authenticate extends Middleware
         'auth/signup'
     ];
 
+
     //URI formatada para a validação via $scopes
     public static $routeUri = null;
     public static $routesFromQueryStr = [];
@@ -199,13 +200,33 @@ class Authenticate extends Middleware
 
                 if (!in_array($relation[0], static::$except) && empty($scopes[$relation[0]])) {
                     
-                    if(!class_exists($classPath = '\\App\\Models\\'.str_replace(' ', '', ucwords(str_replace('_', ' ',$relation[0]))))) {
+                    $attr = str_replace(' ', '', ucwords(str_replace('_', ' ',$relation[0])));
 
-                        throw new AuthenticationException(
-                            "Se o caminho '$relation[0]' existe, a sessão não tem permissão de acesso.",
-                            [],
-                            $this->redirectTo($request)
-                        );
+                    if(!class_exists($classPath = '\\App\\Models\\'.$attr)) {
+
+                        // Verificando se a relação $attr tem permissão por ser um atributo da classe da rota static::$routeUri
+                        if(!$this->hasPermOnScope($attr, $scopes[static::$routeUri]) && empty($scopes[$this->toSnakeCase($attr)])) {
+                            
+                            throw new AuthenticationException(
+                                "Se o caminho '$relation[0]' existe, a sessão não tem permissão de acesso.",
+                                [],
+                                $this->redirectTo($request)
+                            );
+                            
+                        } else {
+                            $routeEntity = '\\App\\Models\\'.$scopes[static::$routeUri]['entity'];
+                            static::$routesFromQueryStr[] = $classPath = (new $routeEntity)->$attr()->getRelated()->table;
+
+                            if (!in_array($classPath, static::$except) && empty($scopes[$classPath])) {
+                                throw new AuthenticationException(
+                                    "Se o caminho '$relation[0]' existe, a sessão não tem permissão de acesso.",
+                                    [],
+                                    $this->redirectTo($request)
+                                );
+                            } else {
+                                $relation[0] = $classPath;
+                            }
+                        }
                     } else {
                         static::$routesFromQueryStr[] = $classPath = (new $classPath)->table;
                         
@@ -244,6 +265,34 @@ class Authenticate extends Middleware
             }
         }
     }
+
+    /**
+     * 
+     * @param {String} $rel :: uma das relações da query string
+     * @param {Array} $scope :: o escopo de acesso da rota requisitada
+     * @returns 'true' se a relação é um atributo com permissão de acesso de pelo menos leitura
+     */
+    private function hasPermOnScope($rel, $scope) {
+        $relation = $this->toSnakeCase($rel).'_id';
+        if(!empty($scope['actions'][$relation]) && $scope['actions'][$relation] > 0) return true;
+        return false;
+    }
+
+    /**
+     * $input String em camelCase (Ex.: camelCaseString)
+     * @returns String em snake_case (E.: snake_case_string)
+     */
+    private function toSnakeCase($input) {
+        $pattern = '!([A-Z][A-Z0-9]*(?=$|[A-Z][a-z0-9])|[A-Za-z][a-z0-9]+)!';
+        preg_match_all($pattern, $input, $matches);
+        $ret = $matches[0];
+        foreach ($ret as &$match) {
+          $match = $match == strtoupper($match) ?
+                strtolower($match) :
+              lcfirst($match);
+        }
+        return implode('_', $ret);
+      }
 }
 /* Definição atual das permissões dos atributos (Action->conde).
  * Octal não foi suficiente, então fiz hexadecimal.
