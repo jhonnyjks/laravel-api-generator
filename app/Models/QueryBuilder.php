@@ -42,6 +42,9 @@ class QueryBuilder extends Builder
             {
                 $columns = array_intersect($columns, Authenticate::$allowedAttributes[$route]);
             }
+
+            // Atributos que devem ser retornados sempre, independente de validação.
+            $columns[] = 'id';
         }
         return parent::get($columns);
     }
