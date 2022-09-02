@@ -31,7 +31,7 @@ class QueryBuilder extends Builder
         }
 
         // Aplicando as exceções de rotas que não devem ser tratadas
-        if(!Authenticate::isRouteExcept() && request()->method() != 'DELETE') 
+        if(!Authenticate::isRouteExcept() && request()->method() != 'DELETE' && $this->from == $route) 
         {
             
             if($columns[0] == '*') 
@@ -44,7 +44,7 @@ class QueryBuilder extends Builder
             }
 
             // Atributos que devem ser retornados sempre, independente de validação.
-            $columns[] = 'id';
+            if(array_search('id', $columns) === false) $columns[] = 'id';
         }
         return parent::get($columns);
     }
