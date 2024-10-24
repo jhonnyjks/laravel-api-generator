@@ -4,8 +4,8 @@ Projeto base para desenvolvimento ágil de APIs em PHP com Laravel. O gerador é
 ## Instruções
 - **1** Clonar este repositório e entrar no diretório que foi criado na clonagem:
 
-        git clone https://github.com/jhonnyjks/sigep2-api api
-        cd api
+        git clone https://github.com/jhonnyjks/laravel-api-generator
+        cd laravel-api-generator
         
 - **2** Baixar dependências do projeto:
         
