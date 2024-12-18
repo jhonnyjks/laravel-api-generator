@@ -16,7 +16,7 @@
         "infyomlabs/adminlte-templates": "6.0.x-dev",
         "infyomlabs/laravel-generator": "6.0.x-dev",
         "infyomlabs/swagger-generator": "dev-master",
-        "laravel/framework": "6.0.*",
+        "laravel/framework": "6.18.*",
         "laravel/passport": "^7.0",
         "laravel/tinker": "^1.0",
         "laravelcollective/html": "^6.0",
