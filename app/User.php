@@ -8,19 +8,22 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Models\Permission;
 use App\Models\Profile;
+use App\Models\Scope;
 use App\Models\UserProfileAction;
 use Illuminate\Support\Facades\Route;
+use App\Notifications\CustomVerifyEmail;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, Notifiable;
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'login', 'email', 'password', 'general_Status_id', 'name', 'last_acess'
+        'login', 'email', 'password', 'general_status_id', 'name', 'last_acess', 'user_position_id','auth_type_id'
     ];
 
     /**
@@ -53,7 +56,6 @@ class User extends Authenticatable
         $routes = $this->getRouteModelArray();
 
         foreach ($permissions as $permission) {
-
             $path = $permission->cpath;
             $model = null;
             $metadata = [];
@@ -62,8 +64,17 @@ class User extends Authenticatable
             if (isset($routes['api/' . $path]) && class_exists($routes['api/' . $path])) {
                 $model = $routes['api/' . $path];
                 $rules = $model::$rules;
-                $model = new $model;
+                $scopesData = Scope::where('permission_id', $permission->id)->get();
 
+                $scopesArray = [];
+
+                foreach ($scopesData as $scopeData) {
+                    $scopesArray[$scopeData->noun] = $scopeData->code;
+                }
+
+                $metadata['scopes'] = $scopesArray;
+
+                $model = new $model;
             }
 
             $actions = [];
@@ -81,6 +92,7 @@ class User extends Authenticatable
             if (!empty($actions)) {
                 $parentPermission = $permission;
 
+               
                 while (!empty($parentPermission->permission_id)) {
                     $parentPermission = $permission->permission;
                     $path = $parentPermission->cpath . '/' . $path;
@@ -90,7 +102,9 @@ class User extends Authenticatable
                     'actions' => $actions,
                     'rules' => !empty($metadata['rules']) ? $metadata['rules'] : [],
                     'entity' => !empty($model) ? 
-                    substr(get_class($model), strrpos(get_class($model), '\\')+1, strlen(get_class($model)) - strrpos(get_class($model), '\\')) : ''
+                        substr(get_class($model), strrpos(get_class($model), '\\')+1, strlen(get_class($model)) - strrpos(get_class($model), '\\')) : '',
+                    'relationships' => !empty($model) ? $model->relationships() : [],
+                    'scopes' => !empty($metadata['scopes']) ? $metadata['scopes'] : [],
                 ];
             }
         }
@@ -142,6 +156,27 @@ class User extends Authenticatable
     public function userProfiles()
     {
         return $this->hasMany(\App\Models\UserProfile::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     **/
+    public function cityUsers()
+    {
+        return $this->hasMany(\App\Models\CityUser::class, 'user_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     **/
+    public function entityUsers()
+    {
+        return $this->hasMany(\App\Models\EntityUser::class);
+    }
+
+    public function sendEmailVerificationNotification()
+    {
+        $this->notify(new CustomVerifyEmail());
     }
 
 }

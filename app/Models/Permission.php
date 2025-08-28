@@ -82,6 +82,14 @@ class Permission extends Model
         return $this->hasMany(\App\Models\Action::class);
     }
 
+     /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     **/
+    public function scopes()
+    {
+        return $this->hasMany(\App\Models\Scope::class);
+    }
+
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      **/

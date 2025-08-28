@@ -65,7 +65,6 @@ class UserProfileAPIController extends AppBaseController
         $this->userProfileRepository->pushCriteria(new LimitOffsetCriteria($request));
         $userProfiles = $this->userProfileRepository->all();
 
-
         return $this->sendResponse($userProfiles->toArray(), 'User Profiles retrieved successfully');
     }
 
@@ -157,7 +156,7 @@ class UserProfileAPIController extends AppBaseController
     public function show($id)
     {
         /** @var UserProfile $userProfile */
-        $userProfile = $this->userProfileRepository->find($id);
+        $userProfile = $this->userProfileRepository->with(['userProfileActions', 'userProfileScopes'])->find($id);
 
         if (empty($userProfile)) {
             return $this->sendError('User Profile not found');
@@ -277,6 +276,6 @@ class UserProfileAPIController extends AppBaseController
 
         $userProfile->delete();
 
-        return $this->sendResponse([],'User Profile deleted successfully');
+        return $this->sendResponse([], 'User Profile deleted successfully');
     }
 }

@@ -3,14 +3,14 @@
 namespace App\Repositories;
 
 use App\Models\Permission;
-use InfyOm\Generator\Common\BaseRepository;
+use App\Repositories\BaseRepository;
 
 /**
  * Class PermissionRepository
  * @package App\Repositories
  * @version April 29, 2019, 5:23 pm UTC
  *
- * @method Permission findWithoutFail($id, $columns = ['*'])
+ * @method Permission find($id, $columns = ['*'])
  * @method Permission find($id, $columns = ['*'])
  * @method Permission first($columns = ['*'])
 */

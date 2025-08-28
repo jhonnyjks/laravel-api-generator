@@ -1,0 +1,31 @@
+<?php
+
+namespace App\Http\Requests\API;
+
+use App\Models\UserProfileAction;
+use InfyOm\Generator\Request\APIRequest;
+
+class UpdateUserProfileActionAPIRequest extends APIRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     *
+     * @return bool
+     */
+    public function authorize()
+    {
+        return true;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array
+     */
+    public function rules()
+    {
+        $rules = UserProfileAction::$rules;
+        
+        return $rules;
+    }
+}

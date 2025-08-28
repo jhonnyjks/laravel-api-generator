@@ -2,6 +2,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\AppBaseController;
+use App\Models\Entity;
+use App\Models\EntityUser;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -10,6 +12,14 @@ use App\Models\Profile;
 use App\Models\UserProfile;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\NewPasswordMail;
+use App\Models\Audit;
+use App\Models\User as UserLocal;
+
+use LdapRecord\Container;
+use LdapRecord\Models\ActiveDirectory\User as LdapUser;
 
 class AuthAPIController extends AppBaseController
 {
@@ -28,23 +38,33 @@ class AuthAPIController extends AppBaseController
     public function signup(Request $request)
     {
         $request->validate([
-            'name' => 'between:8,150',
-            'login' => 'between:5,50|unique:users,login',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|string|between:6,15'
+            'name' => 'required|between:8,150',
+            'login' => 'required|between:5,50|unique:users,login,NULL,id,deleted_at,NULL',
+            'email' => 'required|email|unique:users,email,NULL,id,deleted_at,NULL',
+            'password' => 'required|string|between:6,15',
         ]);
 
-        $user = new User([
+        $user = User::create([
+            'general_status_id'=>1,
+            'auth_type_id' => 1,
             'user_type_id' => 3,
             'user_situation_id' => 1,
+            'name' => $request->name,
             'login' => !empty($request->login) ? $request->login : null,
             'email' => $request->email,
             'password' => bcrypt($request->password)
         ]);
 
-        $user->save();
+        $user_profile = UserProfile::create([
+            'user_id' => $user->id,
+            'profile_id' => 2,
+        ]);
 
-        return $this->login($request);
+        $user->sendEmailVerificationNotification();
+
+        return response()->json([
+            'message' => 'Enviamos um e-mail com as instruções para ativar sua conta no sistema. Por favor, verifique sua caixa de entrada.'
+        ]);
     }
 
     /**
@@ -55,26 +75,22 @@ class AuthAPIController extends AppBaseController
      */
     public function changePassword(Request $request)
     {
-        $request->validate([
-            'password' => 'required|string|between:6,15',
-            'new_password' => 'required|string|between:6,15',
-        ]);
-
-        $user = $request->user();
-        $credentials = ['login' => !empty($user->login) ? $user->login : $user->email , 'password' => $request->password];
-        if (!Hash::check($request->password, $user->password)) {
-            return response()->json([
-                'message' => 'Senha atual incorreta.'
-            ], 401);
+        if (!empty($request['login'])) {
+            $user = UserLocal::where('login', $request['login'])
+                                ->orWhere('email', $request['login'])
+                                ->first();
+    
+            if ($user) {
+                $newPassword = Str::random(8);
+                $user->password = Hash::make($newPassword);
+                $user->save();
+    
+                Mail::to($user->email)->send(new NewPasswordMail($user, $newPassword));
+            }
         }
-
-        $user->password = bcrypt($request->new_password);
-        $user->save();
-
-        return response()->json([
-            'message' => 'Senha alterada com sucesso!'
-        ]);
-    }
+    
+        return response()->json(['message' => 'Se o usuário existe, uma senha temporária foi enviada para o email cadastrado!']);
+    }    
 
     /**
      * Altera os dados do usuário autenticado
@@ -84,17 +100,22 @@ class AuthAPIController extends AppBaseController
      */
     public function changeUserData(Request $request)
     {
-        $request->validate([
-            'login' => 'required_without:email|between:3,20|unique:users,login,{id}',
-            'email' => 'required_without:login|email|unique:users,email,{id}',
-            'name' => 'required|string|between:6,150',
-            'celphone' => 'integer|between:10000000000,99999999999|unique:users,celphone,{id}'
-        ]);
         $user = $request->user();
+
+        $request->validate([
+            'login' => 'required_without:email|between:3,20|unique:users,login,'.$user->id,
+            'email' => 'required_without:login|email|unique:users,email,'.$user->id,
+            'name' => 'required|string|between:6,150',
+            'celphone' => 'integer|between:10000000000,99999999999|unique:users,celphone,'.$user->id
+        ]);
         $user->name = $request->name;
         $user->email = $request->email;
         $user->login = $request->login;
         $user->celphone = $request->celphone;
+        $user->document = $request->document;
+        $user->hiring_type_id = $request->hiring_type_id;
+        $user->education_level_id = $request->education_level_id;
+        $user->position = $request->position;
         $user->save();
         return $this->sendResponse($user->toArray(), 'Usuário alterado com sucesso!');
     }
@@ -118,33 +139,72 @@ class AuthAPIController extends AppBaseController
             'remember_me' => 'boolean'
         ]);
 
-        $credentials = request([!empty($request->login) ? 'login' : 'email', 'password']);
+        $userLocal = UserLocal::where('login', $request->login)->first();
 
-        if (!Auth::attempt($credentials)) {
-
+        if($userLocal && $userLocal->email_verified_at == null) {
+            $this->saveAudit($userLocal,false);
             return response()->json([
-                'message' => 'Acesso não autorizado.'
+                'message' => 'Enviamos um e-mail com as instruções para ativar sua conta no sistema. Por favor, verifique sua caixa de entrada.'
+            ]);
+        }
+
+        if(!$userLocal || $userLocal->general_status_id === 2) {
+            $this->saveAudit($userLocal,false);
+            return response()->json([
+                'message' => 'Acesso não autorizado. Usuário inativo.'
             ], 401);
         }
 
-        $user = $request->user();
+        if ($userLocal->auth_type_id === 1){
+            
+            $credentials = request([!empty($request->login) ? 'login' : 'email', 'password']);
+
+            if (!Auth::attempt($credentials)) {
+                $this->saveAudit($userLocal,false);
+    
+                return response()->json([
+                    'message' => 'Acesso não autorizado.'
+                ], 401);
+            }
+
+        } else if ($userLocal->auth_type_id === 2) {
+            
+            $connection = Container::getConnection('default');
+            $ldapUser = LdapUser::findByOrFail('samaccountname', $request->login);
+
+            if (!$connection->auth()->attempt($ldapUser->getDn(), $request->password)) {
+                $this->saveAudit($userLocal,false);
+    
+                return response()->json([
+                    'message' => 'Acesso não autorizado.'
+                ], 401);
+            }
+
+        }
+
+        $user = User::where('login', $request->login)->first();
+
         $tokenResult = $user->createToken('Token pessoal ' . $user->id);
         $token = $tokenResult->token;
 
         if ($request->remember_me) {
-            $token->expires_at = Carbon::now()->addDays(1);
+            $token->update([
+                'expires_at' => Carbon::now()->addDays(5)
+            ]);
         } else {
-            $token->expires_at = Carbon::now()->addMinutes(30);
+            $token->update([
+                'expires_at' => Carbon::now()->addHours(8)
+            ]);
         }
 
         $profileIds = [];
-        $userProfiles = UserProfile::where(['user_id' => $user->id])->get(['profile_id']);
+        $userProfiles = UserProfile::where(['user_id' => $user->id])->get(['id','profile_id']);
 
         foreach ($userProfiles as $profile) {
             $profileIds[] = $profile->profile_id;
         }
 
-        $token->save();
+        $this->saveAudit($userLocal,true);
 
         return response()->json([
             'message' => 'Usuário autenticado com sucesso!',
@@ -156,8 +216,9 @@ class AuthAPIController extends AppBaseController
                         $tokenResult->token->expires_at
                     )->toDateTimeString()
                 ],
-                'user' => User::find($user->id, ['login', 'name', 'email', 'last_access', 'created_at']),
-                'profiles' => Profile::whereIN('id', $profileIds)->get(['id', 'noun', 'description'])
+                'user' => User::with('cityUsers')->find($user->id),
+                'profiles' => Profile::whereIn('id', $profileIds)->get(['id', 'noun', 'description']),
+                'entities' => EntityUser::with(['entity'])->where('user_id', $user->id)->whereNull('deleted_at')->get()
             ]
         ]);
     }
@@ -174,7 +235,7 @@ class AuthAPIController extends AppBaseController
         $user = auth()->user();
         $token = $user->token();
         $profileIds = [];
-        $userProfiles = UserProfile::where(['user_id' => $user->id])->get(['profile_id']);
+        $userProfiles = UserProfile::where(['user_id' => $user->id])->get(['id','profile_id']);
 
         foreach ($userProfiles as $profile) {
             $profileIds[] = $profile->profile_id;
@@ -189,8 +250,9 @@ class AuthAPIController extends AppBaseController
                         $token->expires_at
                     )->toDateTimeString()
                 ],
-                'user' => User::find($user->id, ['login', 'name', 'email', 'last_access', 'created_at']),
-                'profiles' => Profile::whereIN('id', $profileIds)->get(['id', 'noun', 'description'])
+                'user' => User::with('cityUsers')->find($user->id)->toArray(),
+                'profiles' => Profile::whereIn('id', $profileIds)->get(['id', 'noun', 'description']),
+                'entities' => EntityUser::with(['entity'])->where('user_id', $user->id)->whereNull('deleted_at')->get()
             ]
         ]);
     }
@@ -202,6 +264,9 @@ class AuthAPIController extends AppBaseController
      */
     public function logout(Request $request)
     {
+        $user = $request->user();
+        Audit::salvar($request->user(),'loggedout');
+
         $request->user()->token()->revoke();
         return response()->json([
             'message' => 'Sessão encerrada com sucesso!'
@@ -241,7 +306,8 @@ class AuthAPIController extends AppBaseController
         foreach (User::getRouteModelArray() as $route => $model) {
             $routes[] = [
                 'route' => $route,
-                'attributes' => class_exists($model) ? (new $model())->fillable : ['_show']
+                'attributes' => class_exists($model) ? (new $model())->fillable : ['_show'],
+                'scopes' => class_exists($model) ? (property_exists($model, 'scopes') ? $model::$scopes : []) : []
             ];
         }
 
@@ -292,4 +358,84 @@ class AuthAPIController extends AppBaseController
             'data' => $scopes
         ]);
     }
+
+    private function saveAudit($userLocal,$check){
+        $data = [
+            'login' => $userLocal->login,
+            'autenticado' => $check,
+        ];
+        Audit::salvar($userLocal,'loggedin',json_encode($data),$userLocal->id);
+
+    }
+
+    public function verifiedEmail(Request $request)
+    {
+        // Validar os parâmetros obrigatórios
+        $request->validate([
+            'id' => 'required|string',
+            'hash' => 'required|string',
+        ]);
+
+        // Buscar o usuário pelo ID
+        $user = User::find($request->id);
+
+        // Verificar se o usuário existe
+        if (!$user) {
+            return response()->json(['message' => 'Usuário não encontrado.'], 404);
+        }
+
+        // Verificar se o hash corresponde
+        $expectedHash = sha1($user->getEmailForVerification()); // Método do Laravel para gerar o hash do e-mail
+
+        if ($expectedHash !== $request->hash) {
+            return response()->json(['message' => 'Token inválido ou expirado.'], 400);
+        }
+
+        // Atualizar o campo `email_verified_at`
+        $user->email_verified_at = now();
+        $user->save();
+
+        return response()->json(['message' => 'E-mail verificado com sucesso. Você pode fazer login agora!'], 200);
+    }
+
+    /**
+     * Definir o perfil e permissões do token em sessão
+     *
+     * @return [json] user object
+     */
+    public function refresh()
+    {
+        $token = auth()->user()->token();
+
+        if($token->expires_at < Carbon::now()) {
+            $token->revoke();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Sessão expirada!'
+            ], 401);
+        }
+
+        if($token->revoked) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sessão encerrada!'
+            ], 401);
+        }
+
+        $token->update([
+            'expires_at' => Carbon::now()->addMinutes(5)
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Sessão renovada com sucesso!',
+            'data' => [
+                'expires_at' => Carbon::parse(
+                    $token->expires_at
+                )->toDateTimeString()
+            ]
+        ]);
+    }
+
 }

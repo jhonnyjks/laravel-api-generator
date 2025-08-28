@@ -4,190 +4,225 @@ namespace App\Repositories;
 
 use Illuminate\Container\Container as Application;
 use Illuminate\Database\Eloquent\Model;
+use App\Constants\CODE_PER_OPERATION;
+use Prettus\Repository\Eloquent\BaseRepository as InfBaseRepository;
 
 
-abstract class BaseRepository
+abstract class BaseRepository extends InfBaseRepository
 {
     /**
      * @var Model
      */
     protected $model;
 
-    /**
-     * @var Application
-     */
-    protected $app;
-
-    /**
-     * @param Application $app
-     *
-     * @throws \Exception
-     */
-    public function __construct(Application $app)
+    public function can($scope, $operation, $itemId = null): bool
     {
-        $this->app = $app;
-        $this->makeModel();
-    }
+        $user = auth()->user();
+        $scopes = $user->token()->scopes;
+        $user_allowed_id = $user->id;
+        $model = $this->model->newInstance();
+        $model_name = !empty($modelName)
+            ? $modelName
+            : substr(
+                get_class($model),
+                strrpos(get_class($model), '\\')+1, strlen(get_class($model)) - strrpos(get_class($model), '\\')
+            );
 
-    /**
-     * Get searchable fields array
-     *
-     * @return array
-     */
-    abstract public function getFieldsSearchable();
+        $fk_id = $this->camelToSnake($model_name) . "_id";
 
-    /**
-     * Configure the Model
-     *
-     * @return string
-     */
-    abstract public function model();
+        $model_exists = array_filter($scopes, function ($scope) use ($model_name) {
+            return $scope["entity"] === $model_name;
+        });
 
-    /**
-     * Make Model instance
-     *
-     * @throws \Exception
-     *
-     * @return Model
-     */
-    public function makeModel()
-    {
-        $model = $this->app->make($this->model());
+        $entityKey = array_keys($model_exists)[0];
 
-        if (!$model instanceof Model) {
-            throw new \Exception("Class {$this->model()} must be an instance of Illuminate\\Database\\Eloquent\\Model");
-        }
-
-        return $this->model = $model;
-    }
-
-    /**
-     * Paginate records for scaffold.
-     *
-     * @param int $perPage
-     * @param array $columns
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
-     */
-    public function paginate($perPage, $columns = ['*'])
-    {
-        $query = $this->allQuery();
-
-        return $query->paginate($perPage, $columns);
-    }
-
-    /**
-     * Build a query for retrieving all records.
-     *
-     * @param array $search
-     * @param int|null $skip
-     * @param int|null $limit
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function allQuery($search = [], $skip = null, $limit = null)
-    {
-        $query = $this->model->newQuery();
-
-        if (count($search)) {
-            foreach($search as $key => $value) {
-                if (in_array($key, $this->getFieldsSearchable())) {
-                    $query->where($key, $value);
-                }
+        if (!empty($itemId)) {
+            // Defina o namespace base dos modelos
+            $baseNamespace = 'App\\Models\\';
+            // Construa o nome completo da classe com o namespace
+            $fullClassName = $baseNamespace . $model_name . 'Permission';
+        
+            // Verifique se a classe existe
+            if (class_exists($fullClassName)) {
+                // Crie uma nova instância do modelo
+                $permission = $fullClassName::make();
+        
+                $permission = $permission->where($fk_id, $itemId)
+                    ->where('user_allowed_id', $user_allowed_id)
+                    ->where('scope', $scope)
+                    ->first();
+                
+                if (!$permission) return false;
+            } else {
+                // A classe do modelo não existe, retorne false
+                return false;
             }
+        } elseif (
+            empty($itemId)
+            && (
+                empty($model_exists)
+                || empty($model_exists[$entityKey])
+                || empty($model_exists[$entityKey]['scopes'])
+                || empty($model_exists[$entityKey]['scopes'][$scope])
+            )) {
+            return false;
         }
-
-        if (!is_null($skip)) {
-            $query->skip($skip);
+    
+        switch ($operation) {
+            case 1:
+                return in_array(
+                    empty($itemId) ? $model_exists[$entityKey]['scopes'][$scope] : $permission->code,
+                    CODE_PER_OPERATION::$Read
+                );
+            case 2:
+                return in_array(
+                    empty($itemId) ? $model_exists[$entityKey]['scopes'][$scope] : $permission->code,
+                    CODE_PER_OPERATION::$Insert
+                );
+            case 4:
+                return in_array(
+                    empty($itemId) ? $model_exists[$entityKey]['scopes'][$scope] : $permission->code,
+                    CODE_PER_OPERATION::$Update
+                );
+            case 8:
+                return in_array(
+                    empty($itemId) ? $model_exists[$entityKey]['scopes'][$scope] : $permission->code,
+                    CODE_PER_OPERATION::$Delete
+                );
+            default:
+                return false;
         }
+    }
 
-        if (!is_null($limit)) {
-            $query->limit($limit);
+    public function camelToSnake($text) {
+        return strtolower(preg_replace('/([a-z])([A-Z])/', '$1_$2', $text));
+    }
+
+    public function addEspecialScope($scope, $operation, $userId, $itemId, $modelName = null) {
+
+        $model = $this->model->newInstance();
+        $model_name = !empty($modelName)
+            ? $modelName
+            : substr(
+                get_class($model),
+                strrpos(get_class($model), '\\')+1, strlen(get_class($model)) - strrpos(get_class($model), '\\')
+            );
+        
+            // Defina o namespace base dos modelos
+        $baseNamespace = 'App\\Models\\';
+        // Construa o nome completo da classe com o namespace
+        $fullClassName = $baseNamespace . $model_name . 'Permission';
+        $fkName = $this->camelToSnake($model_name) . "_id";
+
+        // Verifique se a classe existe
+        if (class_exists($fullClassName)) {
+            // Crie uma nova instância do modelo
+            $permissionModelo = $fullClassName::make();
+
+            $permission = $permissionModelo->where([
+                'user_allowed_id' => $userId,
+                'scope' => $scope,
+                $fkName => $itemId
+            ])->first();
+            
+            // Se existe, atualiza o registro
+            if (!empty($permission)) {
+
+                switch ($operation) {
+                    case 1:
+                        if(!in_array($permission->code, CODE_PER_OPERATION::$Read)) {
+                            // Se não existe a permissão, adiciona
+                            $permission->code = $permission->code + $operation;
+                            $permission->save();
+                        }
+                        break;
+                    case 2:
+                        if(!in_array($permission->code, CODE_PER_OPERATION::$Insert)) {
+                            // Se não existe a permissão, adiciona
+                            $permission->code = $permission->code + $operation;
+                            $permission->save();
+                        }
+                        break;
+                    case 4:
+                        if(!in_array($permission->code, CODE_PER_OPERATION::$Update)) {
+                            // Se não existe a permissão, adiciona
+                            $permission->code = $permission->code + $operation;
+                            $permission->save();
+                        }
+                        break;
+                    case 8:
+                        if(!in_array($permission->code, CODE_PER_OPERATION::$Delete)) {
+                            // Se não existe a permissão, adiciona
+                            $permission->code = $permission->code + $operation;
+                            $permission->save();
+                        }
+                        break;
+                    default:
+                        return false;
+                }
+
+                return true;
+            } else {
+                // Se não existe, cria
+                $permissionModelo->create([
+                    'user_allowed_id' => $userId,
+                    'scope' => $scope,
+                    'code'=> $operation,
+                    $fkName => $itemId,
+                    'user_id' => auth()->user()->id
+                ]);
+                return true;
+            }
+            
+        } else {
+            // A classe do modelo não existe, retorne false
+            return false;
         }
-
-        return $query;
     }
 
-    /**
-     * Retrieve all records with given filter criteria
-     *
-     * @param array $search
-     * @param int|null $skip
-     * @param int|null $limit
-     * @param array $columns
-     *
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
-     */
-    public function all($search = [], $skip = null, $limit = null, $columns = ['*'])
-    {
-        $query = $this->allQuery($search, $skip, $limit);
+    public function removeEspecialScope($scope, $operation, $userId, $itemId, $modelName = null) {
 
-        return $query->get($columns);
-    }
+        $model = $this->model->newInstance();
+        $model_name = !empty($modelName)
+            ? $modelName
+            : substr(
+                get_class($model),
+                strrpos(get_class($model), '\\')+1, strlen(get_class($model)) - strrpos(get_class($model), '\\')
+            );
+        
+            // Defina o namespace base dos modelos
+        $baseNamespace = 'App\\Models\\';
+        // Construa o nome completo da classe com o namespace
+        $fullClassName = $baseNamespace . $model_name . 'Permission';
+        $fkName = $this->camelToSnake($model_name) . "_id";
 
-    /**
-     * Create model record
-     *
-     * @param array $input
-     *
-     * @return Model
-     */
-    public function create($input)
-    {
-        $model = $this->model->newInstance($input);
+        // Verifique se a classe existe
+        if (class_exists($fullClassName)) {
+            // Crie uma nova instância do modelo
+            $permissionModelo = $fullClassName::make();
 
-        $model->save();
-
-        return $model;
-    }
-
-    /**
-     * Find model record for given id
-     *
-     * @param int $id
-     * @param array $columns
-     *
-     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|Model|null
-     */
-    public function find($id, $columns = ['*'])
-    {
-        $query = $this->model->newQuery();
-
-        return $query->find($id, $columns);
-    }
-
-    /**
-     * Update model record for given id
-     *
-     * @param array $input
-     * @param int $id
-     *
-     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|Model
-     */
-    public function update($input, $id)
-    {
-        $query = $this->model->newQuery();
-
-        $model = $query->findOrFail($id);
-
-        $model->fill($input);
-
-        $model->save();
-
-        return $model;
-    }
-
-    /**
-     * @param int $id
-     *
-     * @throws \Exception
-     *
-     * @return bool|mixed|null
-     */
-    public function delete($id)
-    {
-        $query = $this->model->newQuery();
-
-        $model = $query->findOrFail($id);
-
-        return $model->delete();
+            $permission = $permissionModelo->where([
+                'user_allowed_id' => $userId,
+                'scope' => $scope,
+                $fkName => $itemId,
+            ])->first();
+            
+            if (!empty($permission)) {
+                // Se igual, remove o registro
+                if($permission->code == $operation) {
+                    $permission->delete();
+                } else if($permission->code > $operation) {
+                    // Se diferente, sabendo que é maior, subtrai
+                    $permission->code = $permission->code - $operation;
+                    $permission->save();
+                }
+                return true;
+            } else {
+                return true;
+            }
+        } else {
+            // A classe do modelo não existe, retorne false
+            return false;
+        }
     }
 }

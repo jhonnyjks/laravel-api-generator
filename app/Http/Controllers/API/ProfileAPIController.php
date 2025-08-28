@@ -63,7 +63,7 @@ class ProfileAPIController extends AppBaseController
     {
         $this->profileRepository->pushCriteria(new RequestCriteria($request));
         $this->profileRepository->pushCriteria(new LimitOffsetCriteria($request));
-        $profiles = $this->profileRepository->all();
+        $profiles = $this->profileRepository->paginate(50);
 
         return $this->sendResponse($profiles->toArray(), 'Profiles retrieved successfully');
     }
@@ -156,7 +156,7 @@ class ProfileAPIController extends AppBaseController
     public function show($id)
     {
         /** @var Profile $profile */
-        $profile = $this->profileRepository->findWithoutFail($id);
+        $profile = $this->profileRepository->find($id);
 
         if (empty($profile)) {
             return $this->sendError('Profile not found');
@@ -216,7 +216,7 @@ class ProfileAPIController extends AppBaseController
         $input = $request->all();
 
         /** @var Profile $profile */
-        $profile = $this->profileRepository->findWithoutFail($id);
+        $profile = $this->profileRepository->find($id);
 
         if (empty($profile)) {
             return $this->sendError('Profile not found');
@@ -268,7 +268,7 @@ class ProfileAPIController extends AppBaseController
     public function destroy($id)
     {
         /** @var Profile $profile */
-        $profile = $this->profileRepository->findWithoutFail($id);
+        $profile = $this->profileRepository->find($id);
 
         if (empty($profile)) {
             return $this->sendError('Profile not found');

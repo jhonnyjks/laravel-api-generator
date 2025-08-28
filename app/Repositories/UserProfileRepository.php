@@ -3,12 +3,12 @@
 namespace App\Repositories;
 
 use App\Models\UserProfile;
-use InfyOm\Generator\Common\BaseRepository;
+use App\Repositories\BaseRepository;
 
 /**
  * Class UserProfileRepository
  * @package App\Repositories
- * @version December 10, 2020, 6:28 pm UTC
+ * @version December 9, 2020, 3:17 pm UTC
 */
 
 class UserProfileRepository extends BaseRepository
@@ -38,4 +38,9 @@ class UserProfileRepository extends BaseRepository
     {
         return UserProfile::class;
     }
+
+    public function findByUserId($userId)
+    {
+        return $this->model->where('user_id', $userId)->first();
+    } 
 }

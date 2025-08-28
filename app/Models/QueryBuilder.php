@@ -34,13 +34,13 @@ class QueryBuilder extends Builder
         if(!Authenticate::isRouteExcept() && request()->method() != 'DELETE' && $this->from == $route) 
         {
             
-            if($columns[0] == '*') 
+            if($columns[0] == '*')
             {
-                $columns = Authenticate::$allowedAttributes[$route];
+                $columns = Authenticate::$allowedAttributes[$route]['GET'] ?? [];
             }
             else 
             {
-                $columns = array_intersect($columns, Authenticate::$allowedAttributes[$route]);
+                $columns = array_intersect($columns, Authenticate::$allowedAttributes[$route]['GET'] ?? []);
             }
 
             // Atributos que devem ser retornados sempre, independente de validação.

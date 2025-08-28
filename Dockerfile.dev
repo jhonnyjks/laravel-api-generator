@@ -1,0 +1,33 @@
+FROM php:8.3-cli
+
+# Instalar dependências básicas
+RUN apt-get update && apt-get install -y \
+    unzip zip curl libpng-dev libonig-dev libxml2-dev libzip-dev libsqlite3-dev \
+    libldap2-dev mariadb-client \
+    && docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu \
+    && docker-php-ext-install pdo pdo_mysql mbstring zip xml gd ldap
+    # && apt install -y tesseract-ocr libtesseract-dev tesseract-ocr-eng tesseract-ocr-por
+
+# Instalar Xdebug
+RUN pecl install xdebug-3.4.4 && docker-php-ext-enable xdebug
+
+# Garantir que o arquivo php.ini exista antes de modificá-lo
+RUN cp /usr/local/etc/php/php.ini-development /usr/local/etc/php/php.ini
+
+# Atualizar configuração do Xdebug
+RUN sed -i '/zend_extension=xdebug.so/d' /usr/local/etc/php/php.ini \
+ && echo "xdebug.mode=debug" >> /usr/local/etc/php/php.ini \
+ && echo "xdebug.start_with_request=yes" >> /usr/local/etc/php/php.ini \
+ && echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/php.ini \
+ && echo "xdebug.client_port=9003" >> /usr/local/etc/php/php.ini \
+ # && echo "xdebug.log=/tmp/xdebug.log" >> /usr/local/etc/php/php.ini \
+ # && echo "xdebug.log_level=10" >> /usr/local/etc/php/php.ini \
+ && echo "xdebug.discover_client_host=true" >> /usr/local/etc/php/php.ini
+
+
+# Ambiente do projeto
+WORKDIR /var/www
+COPY . .
+
+EXPOSE 8000
+CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8000"]

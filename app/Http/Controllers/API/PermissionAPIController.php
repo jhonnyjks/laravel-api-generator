@@ -156,7 +156,7 @@ class PermissionAPIController extends AppBaseController
     public function show($id)
     {
         /** @var Permission $permission */
-        $permission = $this->permissionRepository->findWithoutFail($id);
+        $permission = $this->permissionRepository->find($id);
 
         if (empty($permission)) {
             return $this->sendError('Permission not found');
@@ -216,7 +216,7 @@ class PermissionAPIController extends AppBaseController
         $input = $request->all();
 
         /** @var Permission $permission */
-        $permission = $this->permissionRepository->findWithoutFail($id);
+        $permission = $this->permissionRepository->find($id);
 
         if (empty($permission)) {
             return $this->sendError('Permission not found');
@@ -268,7 +268,7 @@ class PermissionAPIController extends AppBaseController
     public function destroy($id)
     {
         /** @var Permission $permission */
-        $permission = $this->permissionRepository->findWithoutFail($id);
+        $permission = $this->permissionRepository->find($id);
 
         if (empty($permission)) {
             return $this->sendError('Permission not found');

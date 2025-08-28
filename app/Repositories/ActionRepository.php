@@ -3,14 +3,14 @@
 namespace App\Repositories;
 
 use App\Models\Action;
-use InfyOm\Generator\Common\BaseRepository;
+use App\Repositories\BaseRepository;
 
 /**
  * Class ActionRepository
  * @package App\Repositories
  * @version May 3, 2019, 2:14 pm UTC
  *
- * @method Action findWithoutFail($id, $columns = ['*'])
+ * @method Action find($id, $columns = ['*'])
  * @method Action find($id, $columns = ['*'])
  * @method Action first($columns = ['*'])
 */

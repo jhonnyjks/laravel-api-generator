@@ -110,4 +110,12 @@ class UserProfile extends Model
     {
         return $this->hasMany(\App\Models\UserProfileAction::class, 'user_profile_id');
     }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     **/
+    public function userProfileScopes()
+    {
+        return $this->hasMany(\App\Models\UserProfileScope::class, 'user_profile_id');
+    }
 }

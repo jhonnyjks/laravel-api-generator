@@ -1,9 +1,19 @@
-version: '3.5'
 services:
   app:
-    image: atmosmaciel/docker-php-sqlsrv:7.2-apache
-    container_name: financeiro-api
-    volumes:
-      - .:/var/www/html
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cs-mvp-api-prod
     ports:
-      - "3002:80"
+      - "8000:8000"
+    volumes:
+      - ./:/var/www
+    environment:
+      - XDEBUG_MODE=debug
+      - XDEBUG_CONFIG=client_host=host.docker.internal client_port=9003
+    command: >
+      sh -c "chmod +x composer && ./composer install && \
+        if ! grep -E '^APP_KEY=\\w' .env || grep -q '^APP_KEY=$' .env; then php artisan key:generate; fi && \
+        if [ ! -f storage/oauth-private.key ] || [ ! -f storage/oauth-public.key ]; then php artisan passport:install && \
+        chmod 600 storage/oauth-private.key storage/oauth-public.key; fi && \
+        php artisan serve --host=0.0.0.0 --port=8000"

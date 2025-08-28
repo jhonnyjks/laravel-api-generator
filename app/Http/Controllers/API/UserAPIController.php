@@ -63,7 +63,13 @@ class UserAPIController extends AppBaseController
     {
         $this->userRepository->pushCriteria(new RequestCriteria($request));
         $this->userRepository->pushCriteria(new LimitOffsetCriteria($request));
-        $users = $this->userRepository->all();
+        $users = $this->userRepository;
+
+        if($request->all){
+            $users = $users->get();
+        }else{
+            $users = $users->paginate(50);
+        }
 
         return $this->sendResponse($users->toArray(), 'Users retrieved successfully');
     }
@@ -156,7 +162,7 @@ class UserAPIController extends AppBaseController
     public function show($id)
     {
         /** @var User $user */
-        $user = $this->userRepository->findWithoutFail($id);
+        $user = $this->userRepository->find($id);
 
         if (empty($user)) {
             return $this->sendError('User not found');
@@ -216,7 +222,7 @@ class UserAPIController extends AppBaseController
         $input = $request->all();
 
         /** @var User $user */
-        $user = $this->userRepository->findWithoutFail($id);
+        $user = $this->userRepository->find($id);
 
         if (empty($user)) {
             return $this->sendError('User not found');
@@ -268,7 +274,7 @@ class UserAPIController extends AppBaseController
     public function destroy($id)
     {
         /** @var User $user */
-        $user = $this->userRepository->findWithoutFail($id);
+        $user = $this->userRepository->find($id);
 
         if (empty($user)) {
             return $this->sendError('User not found');

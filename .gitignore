@@ -13,3 +13,11 @@ yarn-error.log
 
 /.idea
 /.vscode
+
+/db
+
+./db.sql
+db.sql
+
+/public/fonts
+/public/files

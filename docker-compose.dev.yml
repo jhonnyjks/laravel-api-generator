@@ -1,0 +1,51 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: cs-mvp-api-dev
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/var/www
+    environment:
+      - XDEBUG_MODE=debug
+      - XDEBUG_CONFIG=client_host=host.docker.internal client_port=9003
+    command: >
+      sh -c "if [ ! -f .env ]; then cp .env.example .env; fi && \
+        chmod +x composer && ./composer install && \
+        if ! grep -E '^APP_KEY=\\w' .env || grep -q '^APP_KEY=$' .env; then php artisan key:generate; fi && \
+        if [ ! -f storage/oauth-private.key ] || [ ! -f storage/oauth-public.key ]; then php artisan passport:install && \
+        chmod 600 storage/oauth-private.key storage/oauth-public.key; fi && \
+        php artisan serve --host=0.0.0.0 --port=8000"
+    depends_on:
+      - db
+  db:
+    image: mariadb:10.11.13
+    container_name: cs-mvp-db-dev
+    restart: always
+    command: ["mysqld", "--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
+    environment:
+      MARIADB_DATABASE: "cs-mvp"
+      MARIADB_ROOT_PASSWORD: "123"
+    ports:
+      - "3307:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+      - ./database/db.sql:/docker-entrypoint-initdb.d/db.sql
+  phpmyadmin:
+    image: phpmyadmin:5-apache
+    container_name: cs-mvp-phpmyadmin-dev
+    restart: always
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+      PMA_ABSOLUTE_URI: http://localhost:8080/
+      PMA_ARBITRARY: 1
+      UPLOAD_LIMIT: 256M
+    depends_on:
+      - db
+volumes:
+  mariadb_data:

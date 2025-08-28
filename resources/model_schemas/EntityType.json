@@ -13,7 +13,7 @@
     },
     {
         "name": "name",
-        "dbType": "string,15",
+        "dbType": "string,45",
         "htmlType": "text",
         "validations": "required",
         "searchable": true,
@@ -60,7 +60,19 @@
         "inView": false
     },
     {
+        "name": "deleted_at",
+        "dbType": "datetime:nullable",
+        "htmlType": "date",
+        "validations": null,
+        "searchable": false,
+        "fillable": false,
+        "primary": false,
+        "inForm": false,
+        "inIndex": false,
+        "inView": false
+    },
+    {
         "type": "relation",
-        "relation": "1tm,User,general_status_id"
+        "relation": "1tm,Entity,entity_type_id"
     }
 ]

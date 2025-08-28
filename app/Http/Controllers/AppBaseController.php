@@ -7,7 +7,7 @@ use Response;
 
 /**
  * @SWG\Swagger(
- *   basePath="/api",
+ *   basePath="/api/",
  *   @SWG\Info(
  *     title="Laravel Generator APIs",
  *     version="1.0.0",
@@ -26,5 +26,13 @@ class AppBaseController extends Controller
     public function sendError($error, $code = 404)
     {
         return Response::json(ResponseUtil::makeError($error), $code);
+    }
+
+    public function sendSuccess($message)
+    {
+        return Response::json([
+            'success' => true,
+            'message' => $message
+        ], 200);
     }
 }

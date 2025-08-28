@@ -40,7 +40,6 @@ class User extends Model
     const CREATED_AT = 'created_at';
     const UPDATED_AT = 'updated_at';
 
-
     protected $dates = ['deleted_at'];
 
     /**
@@ -49,6 +48,7 @@ class User extends Model
      * @var array
      */
     public $fillable = [
+        // 'user_type_id',
         'general_status_id',
         'login',
         'name',
@@ -56,7 +56,14 @@ class User extends Model
         'email',
         'email_verified_at',
         'last_access',
-        'celphone'
+        'celphone',
+        'hiring_type_id',
+        'education_level_id',
+        'user_position_id',
+        'document',
+        'guid',
+        'auth_type_id',
+        'registration'
     ];
  
      /**
@@ -65,7 +72,7 @@ class User extends Model
       * @var array
       */
      protected $hidden = [
-         'password', 'remember_token', 'last_access'
+         'password', 'remember_token', 'last_access', 'user_id'
      ];
 
     /**
@@ -79,7 +86,13 @@ class User extends Model
         'password' => 'string',
         'email' => 'string',
         'general_status_id' => 'integer',
-        'celphone' => 'integer'
+        'celphone' => 'integer',
+        'hiring_type_id' => 'integer',
+        'education_level_id' => 'integer',
+        'user_position_id' => 'integer',
+        'document' => 'string',
+        'guid' => 'string',
+        'auth_type_id' => 'integer',
     ];
 
     /**
@@ -88,21 +101,13 @@ class User extends Model
      * @var array
      */
     public static $rules = [
-        'login' => 'required_without:email|between:3,20|unique:users,login,{id}',
+        'login' => 'required_without:email|between:5,20|unique:users,login,{id}',
         'email' => 'required_without:login|email|unique:users,email,{id}',
         'password' => 'required|string|between:6,15',
-        'name' => 'required|string|between:6,150',  
+        'name' => 'required|string|between:6,150',
         'general_status_id' => 'integer|exists:general_statuses,id',
-        'celphone' => 'integer|between:10000000000,99999999999|unique:users,celphone,{id}'
+        'celphone' => 'integer|between:1000000000,99999999999|unique:users,celphone,{id}'
     ];
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     **/
-    public function generalStatus()
-    {
-        return $this->belongsTo(\App\Models\GeneralStatus::class);
-    }
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -110,5 +115,37 @@ class User extends Model
     public function userProfiles()
     {
         return $this->hasMany(\App\Models\UserProfile::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     **/
+    public function entityUsers()
+    {
+        return $this->hasMany(\App\Models\EntityUser::class);
+    }
+    
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     **/
+    public function generalStatus()
+    {
+        return $this->belongsTo(\App\Models\GeneralStatus::class, 'general_status_id');
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     **/
+    public function cityUsers()
+    {
+        return $this->hasMany(\App\Models\CityUser::class);
+    }
+
+    /**
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     **/
+    public function userPosition()
+    {
+        return $this->belongsTo(\App\Models\UserPosition::class, 'user_position_id');
     }
 }

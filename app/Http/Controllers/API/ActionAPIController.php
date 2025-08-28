@@ -156,7 +156,7 @@ class ActionAPIController extends AppBaseController
     public function show($id)
     {
         /** @var Action $action */
-        $action = $this->actionRepository->findWithoutFail($id);
+        $action = $this->actionRepository->find($id);
 
         if (empty($action)) {
             return $this->sendError('Action not found');
@@ -216,7 +216,7 @@ class ActionAPIController extends AppBaseController
         $input = $request->all();
 
         /** @var Action $action */
-        $action = $this->actionRepository->findWithoutFail($id);
+        $action = $this->actionRepository->find($id);
 
         if (empty($action)) {
             return $this->sendError('Action not found');
@@ -264,11 +264,11 @@ class ActionAPIController extends AppBaseController
      *          )
      *      )
      * )
-     */
+     */ 
     public function destroy($id)
     {
         /** @var Action $action */
-        $action = $this->actionRepository->findWithoutFail($id);
+        $action = $this->actionRepository->find($id);
 
         if (empty($action)) {
             return $this->sendError('Action not found');
@@ -279,3 +279,4 @@ class ActionAPIController extends AppBaseController
         return $this->sendResponse($id, 'Action deleted successfully');
     }
 }
+// teste de commit
