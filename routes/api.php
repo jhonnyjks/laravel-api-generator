@@ -69,16 +69,6 @@ Route::group([
 	
 });
 
-// Nova rota de migração de usuários
-//Route::get('migrate-users', [MigrationController::class, 'migrateUsers']);
-
-//Route::get('migrate-users', 'MigrationController@migrateUsers');
-Route::post('start-migration', 'MigrationController@startMigration');
-Route::get('migration-status/{migrationId}', 'MigrationController@getMigrationStatus');
-Route::get('migration-status', 'MigrationStatusController@getMigrationStatus');
-
-
-
 Route::get('permissions/all', [
 	'as' => 'api.permissions.all',
 	'uses' => 'AuthAPIController@accessibleRoutes'

@@ -1,7 +1,7 @@
 {
     "name": "laravel/laravel",
     "type": "project",
-    "description": "iSIGEP.com.br - Gestão de Processos e Arquivos Online",
+    "description": "Client Server MVP",
     "keywords": [
         "framework",
         "laravel"
