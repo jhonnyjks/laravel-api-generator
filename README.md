@@ -7,7 +7,7 @@ Projeto base para desenvolvimento ágil de APIs em PHP com Laravel. O gerador é
 - **1** Clonar este repositório e entrar no diretório que foi criado na clonagem:
 
   ```
-  git clone git@github.com:jhonnyjks/laravel-api-generator.git api
+  git clone https://github.com/jhonnyjks/laravel-api-generator.git api
   cd api
   ```
 - **2** Buildar via docker (também serve para resetar estado e dados do bd):
