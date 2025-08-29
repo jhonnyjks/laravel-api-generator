@@ -1,4 +1,4 @@
-# laravel6-generator
+# laravel-api-generator
 
 Projeto base para desenvolvimento ágil de APIs em PHP com Laravel. O gerador é só um auxiliar, as especificidades ficam por conta do desenvolvedor.
 
