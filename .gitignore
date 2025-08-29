@@ -16,8 +16,5 @@ yarn-error.log
 
 /db
 
-./db.sql
-db.sql
-
 /public/fonts
 /public/files
